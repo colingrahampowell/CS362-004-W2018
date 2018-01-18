@@ -15,9 +15,16 @@ int cardEffect(int card, int choice1, int choice2, int choice3,
 int adventurerEffect( struct gameState *state );
 /* Implementation of the effect of the Adventurer card - called in playCard */
 
-int councilRoomEffect( struct gameState *state );
+int councilRoomEffect( int handPos, struct gameState *state );
 /* Implementation of the effect of the Council Room card - called in playCard */
 
+int smithyEffect( int handPos, struct gameState *state );
+/* Implementation of the effect of the Smithy card - called in playCard */
 
+int mineEffect( int handPos, int trashChoice, int gainChoice, struct gameState *state );
+/* Implementation of the effect of the Mine card - called in playCard */
+
+int villageEffect( int handPos, struct gameState *state );
+/* Implementation of the effect of the Village card - called in playCard */
 
 #endif
