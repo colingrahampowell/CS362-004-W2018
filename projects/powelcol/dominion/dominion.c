@@ -668,58 +668,10 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
   switch( card ) 
     {
     case adventurer:
-        /*
-        while(drawntreasure<2){
-	        if (state->deckCount[currentPlayer] <1){//if the deck is empty we need to shuffle discard and add to deck
-	            shuffle(currentPlayer, state);
-	        }
-	        drawCard(currentPlayer, state);
-	        cardDrawn = state->hand[currentPlayer][state->handCount[currentPlayer]-1];//top card of hand is most recently drawn card.
-	        if (cardDrawn == copper || cardDrawn == silver || cardDrawn == gold)
-	            drawntreasure++;
-	        else{
-	            temphand[z]=cardDrawn;
-	            state->handCount[currentPlayer]--; //this should just remove the top card (the most recently drawn one).
-	            z++;
-	        }
-        }
-        while(z-1>=0){
-	        state->discard[currentPlayer][state->discardCount[currentPlayer]++]=temphand[z-1]; // discard all cards in play that have been drawn
-	        z=z-1;
-        }
-      
-        return 0;
-        */
         return adventurerEffect( state );
 			
     case council_room:
-
         return councilRoomEffect( handPos, state );
-
-    /*
-      //+4 Cards
-      for (i = 0; i < 4; i++)
-	{
-	  drawCard(currentPlayer, state);
-	}
-			
-      //+1 Buy
-      state->numBuys++;
-			
-      //Each other player draws a card
-      for (i = 0; i < state->numPlayers; i++)
-	{
-	  if ( i != currentPlayer )
-	    {
-	      drawCard(i, state);
-	    }
-	}
-			
-      //put played card in played card pile
-      discardCard(handPos, currentPlayer, state, 0);
-			
-      return 0;
-    */
 			
     case feast:
       //gain card with cost up to 5
@@ -778,43 +730,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
       return -1;
 			
     case mine:
-    /*
-      j = state->hand[currentPlayer][choice1];  //store card we will trash
-
-      if (state->hand[currentPlayer][choice1] < copper || state->hand[currentPlayer][choice1] > gold)
-	{
-	  return -1;
-	}
-		
-      if (choice2 > treasure_map || choice2 < curse)
-	{
-	  return -1;
-	}
-
-      if ( (getCost(state->hand[currentPlayer][choice1]) + 3) > getCost(choice2) )
-	{
-	  return -1;
-	}
-
-      gainCard(choice2, state, 2, currentPlayer);
-
-      //discard card from hand
-      discardCard(handPos, currentPlayer, state, 0);
-
-      //discard trashed card
-      for (i = 0; i < state->handCount[currentPlayer]; i++)
-	{
-	  if (state->hand[currentPlayer][i] == j)
-	    {
-	      discardCard(i, currentPlayer, state, 0);			
-	      break;
-	    }
-	}
-			
-      return 0;
-	*/		
         return mineEffect( handPos, choice1, choice2, state );
-
 
     case remodel:
       j = state->hand[currentPlayer][choice1];  //store card we will trash
@@ -839,37 +755,14 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
 	    }
 	}
 
-
       return 0;
 		
     case smithy:
-
-    /*
-
-      //+3 Cards
-      for (i = 0; i < 3; i++)
-	{
-	  drawCard(currentPlayer, state);
-	}
-			
-      //discard card from hand
-      discardCard(handPos, currentPlayer, state, 0);
-      return 0;
-	
-    */
         return smithyEffect( handPos, state );
 	
     case village:
-      //+1 Card
-      drawCard(currentPlayer, state);
-			
-      //+2 Actions
-      state->numActions = state->numActions + 2;
-			
-      //discard played card from hand
-      discardCard(handPos, currentPlayer, state, 0);
-      return 0;
-		
+        return villageEffect( handPos, state );
+
     case baron:
       state->numBuys++;//Increase buys by 1!
       if (choice1 > 0){//Boolean true or going to discard an estate
@@ -1485,8 +1378,9 @@ int smithyEffect(int handPos, struct gameState *state) {
 // a card from the Supply with cost <= 3 + cost of trashed card.
 // Receives: handPos, an int representing the position of the card in the 
 // player's hand; trashChoice, an int representing the card the player wishes to
-// trash; gainChoice, an int representing the card the player wishes to gain; 
-// state, a pointer to an initialized gameState struct.
+// trash (the index of the card in the player's hand); gainChoice, an int 
+// representing the card the player wishes to gain (as an enum value defined in
+// dominion.h); state, a pointer to an initialized gameState struct.
 // Returns: 0 on success, -1 on failure.
 // Preconditions: gameState must have been initialized with initializeGame. handPos
 // must be a valid position in the player's hand.
@@ -1501,7 +1395,7 @@ int smithyEffect(int handPos, struct gameState *state) {
 // the discard pile ('trash' flag is not set in discardCard call).
 
 int mineEffect( int handPos, int trashChoice, int gainChoice, struct gameState* state ) {
-
+    
     int i;  // counter for trashing card
 
     int currentPlayer = whoseTurn(state);
@@ -1521,7 +1415,7 @@ int mineEffect( int handPos, int trashChoice, int gainChoice, struct gameState* 
 	}
 
     // if cost of card to gain is higher than 3 + cost of trashed card, return failure
-    if ( (getCost(state->hand[currentPlayer][trashChoice]) + 3) > getCost(gainChoice) )
+    if ( (getCost(state->hand[currentPlayer][trashChoice]) + 3) < getCost(gainChoice) )
 	{
 	  return -1;
 	}
