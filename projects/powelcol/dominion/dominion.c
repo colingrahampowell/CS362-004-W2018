@@ -1311,9 +1311,9 @@ int adventurerEffect(struct gameState* state) {
 // Preconditions: gameState must have been initialized with initializeGame.
 // Postconditions: 
 //      - the player's hand (state->hand[currentPlayer][]) contains four more cards,
-//        drawn from their deck (state->deck[currentPlayer][]); this may contain cards
-//        previously in the discard pile (state->discard[currentPlayer][]), if the deck 
-//        does not itself contain 4 cards.
+//        drawn from their deck (state->deck[currentPlayer][]).
+// NOTE: existing bug: draw step assumes that there are four cards in the
+//       player's deck / discard pile.
 
 int councilRoomEffect( int handPos, struct gameState *state ) {
 
@@ -1352,9 +1352,7 @@ int councilRoomEffect( int handPos, struct gameState *state ) {
 // Preconditions: gameState must have been initialized with initializeGame.
 // Postconditions: 
 //      - the player's hand (state->hand[currentPlayer][]) contains three more cards,
-//        drawn from their deck (state->deck[currentPlayer][]); if the deck contained
-//        less than three cards, the discard pile (state->discard[currentPlayer][]) 
-//        has been reshuffled and added to the deck.
+//        drawn from their deck (state->deck[currentPlayer][]). 
 
 int smithyEffect(int handPos, struct gameState *state) {
 
@@ -1415,7 +1413,7 @@ int mineEffect( int handPos, int trashChoice, int gainChoice, struct gameState* 
 	}
 
     // if cost of card to gain is higher than 3 + cost of trashed card, return failure
-    if ( (getCost(state->hand[currentPlayer][trashChoice]) + 3) < getCost(gainChoice) )
+    if ( (getCost(state->hand[currentPlayer][trashChoice]) + 3) > getCost(gainChoice) )
 	{
 	  return -1;
 	}
@@ -1447,11 +1445,11 @@ int mineEffect( int handPos, int trashChoice, int gainChoice, struct gameState* 
 // Returns: 0 on success (card effect successfully applied).
 // Preconditions: gameState must have been initialized with initializeGame(); 
 // handPos must be a valid position in the player's hand.
-// Postconditions: An additional card has been drawn from the player's deck
-// ( state->deck[currentPlayer][] ); if the deck did not contain a sufficient 
-// number of cards, the player's discard pile ( state->discard[currentPlayer][] )
-// has been reshuffled into the deck. Two actions have been added to the player's
-// turn; the played card has been discarded.
+// Postconditions: 
+//      -   An additional card has been drawn from the player's deck
+//          ( state->deck[currentPlayer][] )
+//      -   Two actions have been added to the player's
+//          turn; the played card has been discarded.
 
 int villageEffect( int handPos, struct gameState* state ) {
 
