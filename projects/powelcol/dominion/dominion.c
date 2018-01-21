@@ -1095,7 +1095,8 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
     case sea_hag:
       for (i = 0; i < state->numPlayers; i++){
 	if (i != currentPlayer){
-	  state->discard[i][state->discardCount[i]] = state->deck[i][state->deckCount[i]--];			    state->deckCount[i]--;
+	  state->discard[i][state->discardCount[i]] = state->deck[i][state->deckCount[i]--];			    
+      state->deckCount[i]--;
 	  state->discardCount[i]++;
 	  state->deck[i][state->deckCount[i]--] = curse;//Top card now a curse
 	}
@@ -1276,15 +1277,12 @@ int adventurerEffect(struct gameState* state) {
 
     while(drawntreasure < 2) {
 
-        //if the deck is empty we need to shuffle discard and add to deck
-        if (state->deckCount[currentPlayer] < 1){
-            shuffle(currentPlayer, state);
-        }
+        // draw a card from the deck
         drawCard(currentPlayer, state);
-
+        
         //top card of hand is most recently drawn card.
         cardDrawn = state->hand[currentPlayer][state->handCount[currentPlayer] - 1];
-
+        
         if (cardDrawn == copper || cardDrawn == silver || cardDrawn == gold)
             drawntreasure++;
         else{
@@ -1296,8 +1294,9 @@ int adventurerEffect(struct gameState* state) {
     }
 
     // discard all cards in play that have been drawn
-    while( z - 1 >= 0){
-        state->discard[currentPlayer][state->discardCount[currentPlayer]++]=temphand[z-1]; 
+    while(z > 0){
+        // added bug here: should be temphand[z - 1]
+        state->discard[currentPlayer][state->discardCount[currentPlayer]++]=temphand[z]; 
         z = z - 1;
     }
 
@@ -1326,20 +1325,20 @@ int councilRoomEffect( int handPos, struct gameState *state ) {
 	  drawCard(currentPlayer, state);
 	}
 			
-    //+1 Buy
-    state->numBuys++;
+    state->numBuys++;   //+1 Buy
 			
-      //Each other player draws a card
+    //Each other player draws a card
     for (i = 0; i < state->numPlayers; i++)
 	{
 	    if ( i != currentPlayer )
 	    {
-	      drawCard(i, state);
+	        drawCard(i, state);
 	    }
 	}
 			
     //put played card in played card pile
-    discardCard(handPos, currentPlayer, state, 0);
+    // bug: should be discardCard handPos
+    discardCard(i, currentPlayer, state, 0);
     return 0;
 
 }
@@ -1358,12 +1357,22 @@ int smithyEffect(int handPos, struct gameState *state) {
 
     int i;  // card counter
     int currentPlayer = whoseTurn(state);   // get current player
+    int drawCount = 0;
 
     //+3 Cards
     for (i = 0; i < 3; i++)
 	{
-	  drawCard(currentPlayer, state);
+        // bug count number of cards successfully drawn
+        if( drawCard(currentPlayer, state) >= 0 ) {
+            drawCount++;
+        }
 	}
+
+    // bug: adding copper to hand if the deck+discard aren't big enough
+    while( drawCount < 3 ) {
+        gainCard(copper, state, 2, currentPlayer);
+        drawCount++;
+    }
 			
     //discard card from hand
     discardCard(handPos, currentPlayer, state, 0);
@@ -1407,7 +1416,8 @@ int mineEffect( int handPos, int trashChoice, int gainChoice, struct gameState* 
 	}
 	
     // if index of card to gain isn't in bounds, return failure
-    if (gainChoice > treasure_map || gainChoice < curse)
+    // bug: should be gainChoice
+    if (trashChoice > treasure_map || trashChoice < curse)
 	{
 	  return -1;
 	}
