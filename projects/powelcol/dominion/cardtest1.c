@@ -1,7 +1,7 @@
 /*
  * Colin Powell
  * CS362: Assignment 3
- * testSmithy: Smithy unit tests
+ * cardtest1: Smithy unit tests
  */
 
 #include "test_helpers.h"
@@ -14,7 +14,7 @@
 #include <assert.h>
 
 
-int smithyTest(int plyr, int draw, int test_num, struct gameState *post);
+int smithyTest(int plyr, int draw, struct gameState *state);
 
 int main() {
 
@@ -23,77 +23,64 @@ int main() {
     int numPlayers = 2;
     int plyr = 0;   // current player
     int draw;       // number of drawn cards expected
-    int test_num;
 
     int k[10] = { adventurer, council_room, feast, gardens, mine, remodel, smithy,
                   village, baron, great_hall };
 
-    // pre: pre-test game state
-    // post: post-test game state 
-    struct gameState pre, post;
+    // test_state: test_state-test game state
+    // orig_state: post-test game state 
+    struct gameState test_state, orig_state; 
 
     // init. game should give each player deck of > 3 cards
-    initializeGame(numPlayers, k, seed, &pre);
-    memcpy(&post, &pre, sizeof(struct gameState));
+    initializeGame(numPlayers, k, seed, &orig_state);
+
+    // place smithy into first position in hand
+    orig_state.hand[plyr][0] = smithy;
     
-    EPRINT("SMITHY:\nALL TESTS: player hand size = %d\n", pre.handCount[plyr]);
+    // initializeGame should produce sufficient deck sizes
+    for(i = 0; i < orig_state.numPlayers; i++){
+        assert(orig_state.deckCount[i] > 3);
+    }
+
+    EPRINT("SMITHY:\nALL TESTS: player hand size = %d\n", orig_state.handCount[plyr]);
 
     /* ---- TEST: playing smithy with deck size > 3 cards ---- */
-    test_num = 1;
+    EPRINT("\n*TEST: playing smithy with deck = 5 cards*\n");
+    // make a copy of our test state
+    memcpy(&test_state, &orig_state, sizeof(struct gameState));
     draw = 3;
-    
-    EPRINT("\n*TEST %d: playing smithy with deck = 5 cards*\n", test_num);
 
-    // initializeGame should produce sufficient deck sizes
-    for(i = 0; i < pre.numPlayers; i++){
-        assert(pre.deckCount[i] > 3);
-    }
-    smithyTest(plyr, draw, test_num,  &pre);
-
-    // assert that pre and post are equivalent: this must be true
-    // smithyTest cannot modify "pre" struct.
-    assert(memcmp(&pre, &post, sizeof(struct gameState)) == 0);
+    smithyTest(plyr, draw, &test_state);
 
     /* ---- TEST: playing smithy with deck size == 2 cards AND no discard pile ---- */
-    test_num++;
+    EPRINT("\n*TEST: playing smithy with deck == 2 cards, empty discard pile*\n");
+    memcpy(&test_state, &orig_state, sizeof(struct gameState));
     draw = 2;
 
-    EPRINT("\n*TEST %d: playing smithy with deck == 2 cards, empty discard pile*\n", test_num);
-
     // set current player's deck to contain only two cards 
-    pre.deckCount[plyr] = 2;
-
-    memcpy(&post,&pre, sizeof(struct gameState));
-    smithyTest(plyr, draw, test_num,  &pre);
-    assert(memcmp(&pre, &post, sizeof(struct gameState)) == 0);
+    test_state.deckCount[plyr] = 2;
+    smithyTest(plyr, draw, &test_state);
 
     /* ---- TEST: playing smithy with deck size == 1 card AND no discard pile ---- */
-    test_num++;
+    EPRINT("\n*TEST: playing smithy with deck == 1 card, empty discard pile*\n");
+    memcpy(&test_state, &orig_state, sizeof(struct gameState));
     draw = 1;
 
-    EPRINT("\n*TEST %d: playing smithy with deck == 1 card, empty discard pile*\n", test_num);
-
-    // set current player's deck to contain only two cards 
-    pre.deckCount[plyr] = 1;
-    
-    memcpy(&post,&pre, sizeof(struct gameState));
-    smithyTest(plyr, draw, test_num,  &pre);
-    assert(memcmp(&pre, &post, sizeof(struct gameState)) == 0);
+    // set current player's deck to contain only one card
+    test_state.deckCount[plyr] = 1;
+    smithyTest(plyr, draw, &test_state);
 
     /* ---- TEST: playing smithy with deck size == 1 card AND discard pile with 5 cards ---- */
-    test_num++; 
+    EPRINT("\n*TEST: playing smithy with deck == 1 card, 5 cards in discard pile*\n");
     draw = 3;
-
-    EPRINT("\n*TEST %d: playing smithy with deck == 1 card, 5 cards in discard pile*\n", test_num);
    
-    pre.deckCount[plyr] = 1;    // expect to draw from discard when deck emptied
-    pre.discardCount[plyr] = 5; // set discard pile to have five cards
+    test_state.deckCount[plyr] = 1;    // expect to draw from discard when deck emptied
+    test_state.discardCount[plyr] = 5; // set discard pile to have five cards
     // fill discard pile with copper coins
-    for(i = 0; i < pre.discardCount[plyr]; i++) {
-        pre.discard[plyr][i] = copper;
+    for(i = 0; i < test_state.discardCount[plyr]; i++) {
+        test_state.discard[plyr][i] = copper;
     } 
-
-    smithyTest(plyr, draw, test_num, &pre);
+    smithyTest(plyr, draw, &test_state);
      
     return 0; 
 }
@@ -109,89 +96,57 @@ int main() {
  * returns: TRUE (1) if tests pass, and 0 (FALSE) if tests fail.
  */
 
-int smithyTest(int plyr, int drawn, int test_num, struct gameState *state) {
+int smithyTest(int plyr, int drawn, struct gameState *state) {
 
-    int i = 0;          // counter
-    int pass = TRUE;   // tracks test failure
+    int i = 0;  // counter
+    int pass = TRUE;   // tracks test status
 
-    int handPos = 0;    // pos of card to play 
-    int bonus = 0;      // not part of smithy; needed for cardEffect
-    int disc = 1;       // number of cards expected to be discarded
+    int hand_pos = 0;    // pos of card to play
+    int bonus = 0;      // not part of card function; needed for cardEffect
+    int disc = 1;       // expect to discard only played card
 
-    int supp_size;      // number of cards in supply
+    struct gameState st_test;   // used to store copy of game state for testing
+    memcpy(&st_test, state, sizeof(struct gameState)); 
 
-    // expected hand size after card play, including discarded smithy
-    int exp_hand = state->handCount[plyr] + drawn - disc;
-    
-    // expected deck size after card play: if the deck would be exhausted, 
-    // we'd expect discarded cards to be reshuffled into deck.
-    int exp_deck = (state->deckCount[plyr] - drawn > 0) ? 
-                    state->deckCount[plyr] - drawn : 
-                    state->deckCount[plyr] + state->discardCount[plyr] - drawn;     
-  
-    struct gameState st_test;
+    // store expected hand, deck, discard, and supply counts:
+    int exp_hands[state->numPlayers];
+    int exp_decks[state->numPlayers];
+    int exp_discard[state->numPlayers];
 
-    // copy initialized game state to st_test
-    memcpy(&st_test, state, sizeof(struct gameState));
+    // copy initial hand and deck count states into temp arrays
+    for(i = 0; i < state->numPlayers; i++) {
+        exp_hands[i] = state->handCount[i];
+        exp_decks[i] = state->deckCount[i];
+        exp_discard[i] = state->discardCount[i];
+    }
 
-    // set size of supply
-    supp_size = sizeof(st_test.supplyCount) / sizeof(st_test.supplyCount[0]);
+    // one (at most) card drawn, one discarded
+    // accommodate 'reshuffling' necessary if deck pile emptied
+    exp_hands[plyr] = state->handCount[plyr] + drawn - disc; 
+    exp_discard[plyr] = state->discardCount[plyr] + 1;
+    exp_decks[plyr] = (state->deckCount[plyr] - drawn >= 0) ? 
+                      state->deckCount[plyr] - drawn : 
+                      state->deckCount[plyr] + state->discardCount[plyr] - drawn;    
 
-    EPRINT("current player - checking hand/deck counts:\n");
-    // handPos is a dummy value - play as if this pos. included smithy
-    cardEffect(smithy, 0, 0, 0, &st_test, handPos, &bonus);
+    /* TESTING */
+    EPRINT("current turn: %d\n", plyr);
+    cardEffect(smithy, 0, 0, 0, &st_test, hand_pos, &bonus);
 
-    // test that appropriate num. of cards are in plyr's hand 
-    if(st_test.handCount[plyr] != (state->handCount[plyr] + drawn - disc )) {
+    /* if function was successful, check state against expected changes */
+
+    // check that all players have expected hand, deck, discard deck sizes
+    if(output_basic_state_tests(exp_decks, exp_hands, exp_discard, &st_test) == FALSE) {
         pass = FALSE;
     }
-    EPRINT("\thand count: %d, expected: %d\n", st_test.handCount[plyr], exp_hand);
-            
-    // test that appropriate num. of cards have been drawn from plyr's deck
-    if(st_test.deckCount[plyr] != exp_deck) {
+
+    // check that supply count has not changed for all cards 
+    if(output_supply_test(state->supplyCount, &st_test) == FALSE) {
         pass = FALSE;
     }
-    EPRINT("\tdeck count: %d, expected: %d\n", st_test.deckCount[plyr], exp_deck);
 
-    // test conditions for other players: should be no change
-    EPRINT("other players - checking hand/deck counts:\n");
-    for(i = 0; i < state->numPlayers; i++){
-        if(i != plyr) { 
-            EPRINT("\tplayer %d:\n", i);
-            // ensure that hand count doesn't change
-            if( st_test.handCount[i] != state->handCount[i] ) {
-                pass = FALSE;
-            }
-            EPRINT("\thandCount: %d, expected %d\n",
-                    st_test.handCount[i], state->handCount[i]);
+    // output results
+    output_test_result(pass);
+    return pass;
 
-            // ensure that deck count doesn't change
-            if( st_test.deckCount[i] != state->deckCount[i] ) {
-                pass = FALSE;
-            }
-            EPRINT("\tdeckCount: %d, expected %d\n",
-                    st_test.deckCount[i], state->deckCount[i]);
-        }
-    } 
-
-    // finally, no changes should occur to any kingdom/victory card piles
-    EPRINT("verifying no changes to supply...reporting only failures:\n");
-    for(i = 0; i < supp_size; i++ ) {
-        if(st_test.supplyCount[i] != state->supplyCount[i]) {
-            EPRINT("\tsupply pos %i: observed, %d, expected: %d\n", 
-                    i, st_test.supplyCount[i], state->supplyCount[i]);
-            pass = FALSE;
-        }
-    }
-
-    // number of cards expected to be drawn or discarded
-    if( pass ) { 
-        EPRINT(">>> TEST %d: SUCCESS\n", test_num);
-    }
-    else {
-        EPRINT(">>> TEST %d: FAILED\n", test_num);
-    }
-
-    return pass;    
 }
 
