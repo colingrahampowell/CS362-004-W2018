@@ -44,11 +44,11 @@ int main() {
     // if wrong gain card choice: no change (fail)
     // if wrong trash card choice: no change (fail)
 
-    EPRINT("MINE:\nALL TESTS: player hand size = %d\n\n", orig_state.handCount[plyr]);
+    printf("MINE:\nALL TESTS: player hand size = %d\n\n", orig_state.handCount[plyr]);
 
     /* TEST: playing mine with no treasures in hand */ 
 
-    EPRINT("*TEST: play mine w/ no treasures in hand*\n");
+    printf("*TEST: play mine w/ no treasures in hand*\n");
     memcpy(&test_state, &orig_state, sizeof(struct gameState));
 
     // put estates in all non-mine hand slots
@@ -60,7 +60,7 @@ int main() {
 
     /* TEST: playing mine with invalid trash card */
 
-    EPRINT("\n*TEST: play mine w/ invalid trash card - not a coin*\n");
+    printf("\n*TEST: play mine w/ invalid trash card - not a coin*\n");
     memcpy(&test_state, &orig_state, sizeof(struct gameState));
 
     // put copper in second slot (after mine)
@@ -73,14 +73,14 @@ int main() {
     
     mine_test(0, 2, silver, &test_state);
 
-    EPRINT("\n*TEST: play mine w/ invalid trash card - not in hand*\n");
+    printf("\n*TEST: play mine w/ invalid trash card - not in hand*\n");
     // place a valid card in the idx one after the highest in hand
     test_state.hand[plyr][ test_state.handCount[plyr] ] = copper;
     mine_test(0, test_state.handCount[plyr], silver, &test_state );
 
     /* TEST: playing mine with invalid gain card */ 
 
-    EPRINT("\n*TEST: play mine w/ non-coin gain card (%d)*\n", adventurer);
+    printf("\n*TEST: play mine w/ non-coin gain card (%d)*\n", adventurer);
     memcpy(&test_state, &orig_state, sizeof(struct gameState));
 
     // put copper in second slot (after mine)
@@ -94,29 +94,29 @@ int main() {
     // attempt to gain adventurer into hand
     mine_test(0, 1, adventurer, &test_state);
    
-    EPRINT("\n*TEST: play mine w/ too-expensive gain card (%d)*\n", gold);
+    printf("\n*TEST: play mine w/ too-expensive gain card (%d)*\n", gold);
     // no need to change test state: just try to gain different card
     mine_test(0, 1, gold, &test_state);
 
-    EPRINT("\n*TEST: play mine w/ invalid trash card (%d)*\n", MAX_HAND + 1);
+    printf("\n*TEST: play mine w/ invalid trash card (%d)*\n", MAX_HAND + 1);
     // no need to change test state: just try to gain different card
     // attempting to gain treasure_map + 1 (not a valid card id)
     mine_test(0, MAX_HAND + 1, copper, &test_state);
 
-    EPRINT("\n*TEST: play mine w/ invalid trash card (%d)*\n", -1);
+    printf("\n*TEST: play mine w/ invalid trash card (%d)*\n", -1);
     // no need to change test state: just try to gain different card
     // attempting to gain treasure_map + 1 (not a valid card id)
     mine_test(0, -1, copper, &test_state);
     /* TEST: playing mine with correct parameters */
 
-    EPRINT("\n*TEST: play mine w/ correct cards: exchange copper for silver*\n");
+    printf("\n*TEST: play mine w/ correct cards: exchange copper for silver*\n");
     memcpy(&test_state, &orig_state, sizeof(struct gameState));
 
     // put copper in second slot (after mine)
     test_state.hand[plyr][1] = copper;
     mine_test(0, 1, silver, &test_state);
     
-    EPRINT("\n*TEST: play mine w/ correct cards: exchange gold for copper*\n");
+    printf("\n*TEST: play mine w/ correct cards: exchange gold for copper*\n");
     memcpy(&test_state, &orig_state, sizeof(struct gameState));
 
     // put copper in second slot (after mine)
@@ -151,10 +151,12 @@ int mine_test(int plyr, int card_to_trash, int card_to_gain, struct gameState *s
     int exp_ret = 0;    // expected cardEffect ret val
     int ret;            // actual cardEffect ret val
 
-    // store expected hand, deck, discard, and supply counts:
+    // store expected hand, deck, discard, played, and supply counts:
     int exp_hands[state->numPlayers];
     int exp_decks[state->numPlayers];
     int exp_discard[state->numPlayers];
+
+    int exp_play_count = 1; // only mine should be played
 
     // supp_size: size of supply count
     int supp_size = sizeof(state->supplyCount) / sizeof(state->supplyCount[0]);
@@ -169,11 +171,12 @@ int mine_test(int plyr, int card_to_trash, int card_to_gain, struct gameState *s
     
     // player will have one less card in their hand after successful play
     // discarded mine + gained card - trashed card
-
     for(i = 0; i < supp_size; i++) {
         exp_supply[i] = state->supplyCount[i];
     }
     exp_hands[plyr] = state->handCount[plyr]; 
+   
+    /* ERROR CHECKING */
 
     // set expected return value: any of these conditions
     // should make the card function a no-op (no state change)
@@ -184,52 +187,52 @@ int mine_test(int plyr, int card_to_trash, int card_to_gain, struct gameState *s
         exp_ret = -1;   
     }
     // if card to trash is not in hand (out of range), should ret. -1 
-    else if( card_to_trash >= (state->handCount[plyr]) || 
-             card_to_trash < 0 ) {
+    else if( card_to_trash >= (state->handCount[plyr]) || card_to_trash < 0 ) {
         exp_ret = -1;
     }
     // else: card effect should also return -1 if choice is too expensive 
     // if gain / trash cards are both coins, this will only happen if 
     // gain = gold and trash = copper
-    else if(state->hand[plyr][card_to_trash] == copper &&
-            card_to_gain == gold ){
+    else if(state->hand[plyr][card_to_trash] == copper && card_to_gain == gold ){
         exp_ret = -1;
     }
     else {
         exp_hands[plyr]--;
         exp_supply[card_to_gain]--;
-        exp_discard[plyr] = 1;  // if called w/ correct params, mine discarded
     }
     
     /* TESTING */
-    EPRINT("current turn: %d\n", plyr);
-    ret = cardEffect(mine, card_to_trash, card_to_gain, 0,
-                     &st_test, hand_pos, &bonus);
+    printf("current turn: %d\n", plyr);
+    ret = cardEffect(mine, card_to_trash, card_to_gain, 0, &st_test, hand_pos, &bonus);
+
     if( exp_ret != ret ) {
         pass = FALSE;
     }
 
-    EPRINT("card effect return value: %d, expected: %d\n", ret, exp_ret);
+    printf("card effect return value: %d, expected: %d\n", ret, exp_ret);
 
     // if error, assert that no changes to game state were made - return if true 
     if( ret < 0 ) {
-        EPRINT("checking that card effect error leaves state unchanged:\n");
+        printf("checking that card effect error leaves state unchanged:\n");
         if(memcmp(state, &st_test, sizeof(struct gameState) ) == 0) {
-            EPRINT("-no changes: OK. terminating test...\n");
+            printf("--no changes: OK. terminating test...\n");
             output_test_result(pass);
             return TRUE;
         }
         else {
-            EPRINT("-changes to state: see below for test results:\n");
+            printf("--changes to state: see below for test results:\n");
         }
     }
 
     /* if function was successful, check state against expected changes */
 
-    // check that expected card was gained
-
     // check that all players have expected hand / deck counts
-    if(output_basic_state_tests(exp_decks, exp_hands, exp_discard, &st_test) == FALSE) {
+    if(output_global_state_tests(exp_decks, exp_hands, exp_discard, &st_test) == FALSE) {
+        pass = FALSE;
+    }
+
+    // check that played card count has not changed for all cards 
+    if(output_played_card_test(exp_play_count, &st_test) == FALSE) {
         pass = FALSE;
     }
 

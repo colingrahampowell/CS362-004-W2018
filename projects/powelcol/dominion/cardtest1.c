@@ -5,9 +5,9 @@
  */
 
 #include "test_helpers.h"
-
 #include "dominion.h"
 #include "dominion_helpers.h"
+
 #include "rngs.h"
 #include <string.h>
 #include <stdio.h>
@@ -42,10 +42,10 @@ int main() {
         assert(orig_state.deckCount[i] > 3);
     }
 
-    EPRINT("SMITHY:\nALL TESTS: player hand size = %d\n", orig_state.handCount[plyr]);
+    printf("SMITHY:\nALL TESTS: player hand size = %d\n", orig_state.handCount[plyr]);
 
     /* ---- TEST: playing smithy with deck size > 3 cards ---- */
-    EPRINT("\n*TEST: playing smithy with deck = 5 cards*\n");
+    printf("\n*TEST: playing smithy with deck = 5 cards*\n");
     // make a copy of our test state
     memcpy(&test_state, &orig_state, sizeof(struct gameState));
     draw = 3;
@@ -53,7 +53,7 @@ int main() {
     smithyTest(plyr, draw, &test_state);
 
     /* ---- TEST: playing smithy with deck size == 2 cards AND no discard pile ---- */
-    EPRINT("\n*TEST: playing smithy with deck == 2 cards, empty discard pile*\n");
+    printf("\n*TEST: playing smithy with deck == 2 cards, empty discard pile*\n");
     memcpy(&test_state, &orig_state, sizeof(struct gameState));
     draw = 2;
 
@@ -62,7 +62,7 @@ int main() {
     smithyTest(plyr, draw, &test_state);
 
     /* ---- TEST: playing smithy with deck size == 1 card AND no discard pile ---- */
-    EPRINT("\n*TEST: playing smithy with deck == 1 card, empty discard pile*\n");
+    printf("\n*TEST: playing smithy with deck == 1 card, empty discard pile*\n");
     memcpy(&test_state, &orig_state, sizeof(struct gameState));
     draw = 1;
 
@@ -71,7 +71,7 @@ int main() {
     smithyTest(plyr, draw, &test_state);
 
     /* ---- TEST: playing smithy with deck size == 1 card AND discard pile with 5 cards ---- */
-    EPRINT("\n*TEST: playing smithy with deck == 1 card, 5 cards in discard pile*\n");
+    printf("\n*TEST: playing smithy with deck == 1 card, 5 cards in discard pile*\n");
     draw = 3;
    
     test_state.deckCount[plyr] = 1;    // expect to draw from discard when deck emptied
@@ -108,10 +108,12 @@ int smithyTest(int plyr, int drawn, struct gameState *state) {
     struct gameState st_test;   // used to store copy of game state for testing
     memcpy(&st_test, state, sizeof(struct gameState)); 
 
-    // store expected hand, deck, discard, and supply counts:
+    // store expected hand, deck, discard, supply, and played counts
     int exp_hands[state->numPlayers];
     int exp_decks[state->numPlayers];
     int exp_discard[state->numPlayers];
+
+    int exp_play_count = 1; // just playing smithy
 
     // copy initial hand and deck count states into temp arrays
     for(i = 0; i < state->numPlayers; i++) {
@@ -123,19 +125,35 @@ int smithyTest(int plyr, int drawn, struct gameState *state) {
     // one (at most) card drawn, one discarded
     // accommodate 'reshuffling' necessary if deck pile emptied
     exp_hands[plyr] = state->handCount[plyr] + drawn - disc; 
-    exp_discard[plyr] = state->discardCount[plyr] + 1;
     exp_decks[plyr] = (state->deckCount[plyr] - drawn >= 0) ? 
                       state->deckCount[plyr] - drawn : 
                       state->deckCount[plyr] + state->discardCount[plyr] - drawn;    
 
+    // if deck > 3 cards, no reshuffling necessary; otherwise, discard pile empty
+    exp_discard[plyr] = state->deckCount[plyr] >= 3 ? state->discardCount[plyr] : 0; 
+/*
+    // set played cards to initial state
+    for(i = 0; i < MAX_DECK; i++) {
+        exp_played[i] = state->playedCards[i];
+    }
+
+    // expect smithy to be next card played
+    exp_played[state->playedCardCount] = smithy; 
+*/
     /* TESTING */
-    EPRINT("current turn: %d\n", plyr);
+
+    printf("current turn: %d\n", plyr);
     cardEffect(smithy, 0, 0, 0, &st_test, hand_pos, &bonus);
 
     /* if function was successful, check state against expected changes */
 
     // check that all players have expected hand, deck, discard deck sizes
-    if(output_basic_state_tests(exp_decks, exp_hands, exp_discard, &st_test) == FALSE) {
+    if(output_global_state_tests(exp_decks, exp_hands, exp_discard, &st_test) == FALSE) {
+        pass = FALSE;
+    }
+    
+    // check that played card count has not changed for all cards 
+    if(output_played_card_test(exp_play_count, &st_test) == FALSE) {
         pass = FALSE;
     }
 

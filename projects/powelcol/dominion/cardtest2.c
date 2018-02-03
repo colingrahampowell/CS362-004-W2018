@@ -43,14 +43,14 @@ int main() {
         assert(orig_state.deckCount[i] >= 5);
     }
 
-    EPRINT("ADVENTURER:\nALL TESTS: player hand size = %d\n\n", orig_state.handCount[plyr]);
+    printf("ADVENTURER:\nALL TESTS: player hand size = %d\n\n", orig_state.handCount[plyr]);
 
     /* TEST: playing adventurer with > 2 treasure cards in deck, same type, top of deck */
-    EPRINT("*TEST: play adventurer w/ 2 treas. cards at top of deck*\n");
+    printf("*TEST: play adventurer w/ 2 treas. cards at top of deck*\n");
     memcpy(&test_state, &orig_state, sizeof(struct gameState));
 
     draw = 2;   // expect to draw two cards
-    disc = 1;   // expect to discard one
+    disc = 0;   // none discarded 
 
     // place 1 copper and 1 gold at top of deck
     top_deck = test_state.deckCount[plyr] - 1;
@@ -60,11 +60,11 @@ int main() {
     adv_test(plyr, draw, disc, &test_state);
 
     /* TEST: playing adventurer w/ 2 treasure cards at very bottom of deck */
-    EPRINT("\n*TEST: play adventurer w/ 2 treas. cards at bottom of deck*\n");
+    printf("\n*TEST: play adventurer w/ 2 treas. cards at bottom of deck*\n");
     memcpy(&test_state, &orig_state, sizeof(struct gameState));
 
     draw = 5;   // player has to draw entire deck
-    disc = 4;   // will have to discard three of these + adv
+    disc = 3;   // will have to discard three of these
 
     // place treasure cards at bottom of deck - 
     // use silver to ensure that it is recognized by adventurer effect
@@ -80,11 +80,11 @@ int main() {
 
     /* TEST: playing adventurer w/ 1 treasure card in deck, empty discard */
 
-    EPRINT("\n*TEST: play adv. w/ 1 treas. card in deck, none in discard*\n");
+    printf("\n*TEST: play adv. w/ 1 treas. card in deck, none in discard*\n");
     memcpy(&test_state, &orig_state, sizeof(struct gameState));
 
     draw = 5;   // player has to draw entire deck
-    disc = 5;   // will have to discard four of these + adv
+    disc = 4;   // will have to discard four of these
 
     // place treasure cards at bottom of deck - 
     // use silver to ensure that it is recognized by adventurer effect
@@ -101,7 +101,7 @@ int main() {
     /* TEST: playing adventurer w/ 0 treasure cards in deck, empty discard */   
             
 /*
-    EPRINT("*TEST %d\: check that all treasure types are recognized*\n", test_num);
+    printf("*TEST %d\: check that all treasure types are recognized*\n", test_num);
     test_num++;
     draw = 2;
 
@@ -112,7 +112,7 @@ int main() {
             pre.deck[plyr][top_deck] = j;
             pre.deck[plyr][top_deck - 1] = k;
 
-            EPRINT("testing with deck top: %d, next card: %d\n", j, k);
+            printf("testing with deck top: %d, next card: %d\n", j, k);
 
 
             memcpy(&post, &pre, sizeof(struct gameState));
@@ -168,38 +168,55 @@ int adv_test(int plyr, int drawn, int disc, struct gameState *state) {
     int bonus = 0;      // not part of adv.; needed for cardEffect
     int top_hand;       // idx of top card in player's hand
 
+
     // store expected hand, deck, discard counts:
     int exp_hands[state->numPlayers];
     int exp_decks[state->numPlayers];
     int exp_discard[state->numPlayers];
 
+ //   int exp_played[MAX_DECK];
+    int exp_played_count = 1;   // num. of cards expected to be played
+
     // copy initial hand and deck count states into temp arrays
     for(i = 0; i < state->numPlayers; i++) {
         exp_hands[i] = state->handCount[i];
         exp_decks[i] = state->deckCount[i];
-        exp_discard[i] = state->discardCount[i];
     }
 
     // set current player's expected hand / deck counts
-    exp_hands[plyr] = state->handCount[plyr] + drawn - disc; 
+    // expected hand: drawn - discarded - played
+    exp_hands[plyr] = state->handCount[plyr] + drawn - disc - 1;
     exp_decks[plyr] = (state->deckCount[plyr] - drawn >= 0) ? 
                       state->deckCount[plyr] - drawn : 
                       state->deckCount[plyr] + state->discardCount[plyr] - drawn;    
     exp_discard[plyr] = disc;
-
+/*
+    for(i = 0; i < MAX_DECK; i++) {
+        exp_played[i] = state->playedCards[i];
+    } 
+    
+    // expect adventurer to be next card played
+    exp_played[state->playedCardCount] = adventurer; 
+*/
     struct gameState st_test;   // used to store copy of game state for testing
-
     memcpy(&st_test, state, sizeof(struct gameState)); 
+
+    /* TESTING */
 
     cardEffect(adventurer, 0, 0, 0, &st_test, hand_pos, &bonus); 
     
-    EPRINT("current turn: %d\n", plyr);
+    printf("current turn: %d\n", plyr);
 
     // check that all players have expected hand / deck counts
-    if(output_basic_state_tests(exp_decks, exp_hands, exp_discard, &st_test) == FALSE) {
+    if(output_global_state_tests(exp_decks, exp_hands, exp_discard, &st_test) == FALSE) {
         pass = FALSE;
     }
-   
+
+     // check that played cards match expectations 
+    if(output_played_card_test(exp_played_count, &st_test) == FALSE) {
+        pass = FALSE;
+    }
+
     // check that supply count has not changed for any card in supply 
     if(output_supply_test(state->supplyCount, &st_test) == FALSE) {
         pass = FALSE;
@@ -208,18 +225,17 @@ int adv_test(int plyr, int drawn, int disc, struct gameState *state) {
     // adventurer-specific test: ensure that only treasures were 
     // drawn from the draw pile:
     top_hand = st_test.handCount[plyr] - 1;
-    EPRINT("checking that only treasures were drawn:\n");
+    printf("checking that only treasures were drawn:\n");
    
-    // if any cards were drawn (delta >= 0): 
-    if(drawn - disc >= 0) {
+    // if any cards were drawn (delta > 0): 
+    if(drawn - disc > 0) {
         // if drawn cards are not treasures, output the mismatch
-        for(i = top_hand; i >= top_hand - (drawn - disc); i--) {
+        for(i = top_hand; i > top_hand - (drawn - disc); i--) {
             if(st_test.hand[plyr][i] > gold || st_test.hand[plyr][i] < copper) {
-                EPRINT("-ERROR: hand pos %d, found non-treasure card with ID: %d\n", 
+                printf("-ERROR: hand pos %d, found non-treasure card with ID: %d\n", 
                         i, st_test.hand[plyr][i]);
                 good_cards = FALSE;
             }            
-//            EPRINT("pos: %d, val: %d\n", i, st_test.hand[plyr][i]);
         } 
     }
 
@@ -227,7 +243,7 @@ int adv_test(int plyr, int drawn, int disc, struct gameState *state) {
         pass = FALSE;
     }
     else {
-        EPRINT("-only treasures were drawn - OK\n");
+        printf("--only treasures were drawn - OK\n");
     }
 
     output_test_result(pass);

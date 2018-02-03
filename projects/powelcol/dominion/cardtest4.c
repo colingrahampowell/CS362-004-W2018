@@ -17,6 +17,7 @@ int village_test(int plyr, int drawn, struct gameState *state);
 
 int main() {
 
+    int i;          // counter
     int seed = 1;
     int numPlayers = 2;
     int plyr = 0;   // current player
@@ -39,16 +40,19 @@ int main() {
     // +2 actions (delta-action + 1)
     // all other players: state remains the same 
 
-    EPRINT("VILLAGE:\nALL TESTS: player hand size = %d\n\n", orig_state.handCount[plyr]);
+    printf("VILLAGE:\nALL TESTS: player hand size = %d\n\n", orig_state.handCount[plyr]);
 
-    /* TEST: playing villagewith no treasures in hand */ 
+    /* TEST: playing village with deck size = 5 */ 
 
-    EPRINT("*TEST: playing village with deck size == 5*\n");
+    printf("*TEST: playing village with deck size == 5*\n");
     memcpy(&test_state, &orig_state, sizeof(struct gameState));
 
     village_test(0, 1, &test_state);
 
-    EPRINT("*\nTEST: playing village with empty deck, empty discard*\n");
+
+    /* TEST: playing village with deck size = 0, discard size = 0 */ 
+
+    printf("\n*TEST: playing village with empty deck, empty discard*\n");
     memcpy(&test_state, &orig_state, sizeof(struct gameState));
 
     test_state.deckCount[plyr] = 0;
@@ -56,6 +60,21 @@ int main() {
 
     village_test(0, 0, &test_state);
 
+
+    /* TEST: playing village with deck size = 0, discard size = 5 */ 
+
+    printf("\n*TEST: playing village with empty deck, discard size == 5*\n");
+    memcpy(&test_state, &orig_state, sizeof(struct gameState));
+
+    test_state.deckCount[plyr] = 0;
+    test_state.discardCount[plyr] = 5; 
+
+    // fill discard with copper cards
+    for(i = 0; i < test_state.discardCount[plyr]; i++) {
+        test_state.discard[plyr][i] = copper;
+    }
+
+    village_test(0, 1, &test_state);
     return 0;
 }
 
@@ -81,13 +100,16 @@ int village_test(int plyr, int drawn, struct gameState *state) {
     struct gameState st_test;   // used to store copy of game state for testing
     memcpy(&st_test, state, sizeof(struct gameState)); 
 
-    // expected actions after playing card: -1 from playing, +2 from card effect
-    int exp_actions = state->numActions + 1;
+    // expected actions after playing card: +2 from card effect
+    // action deduction for playing card happens outside of cardEffect / villageEffect
+    int exp_actions = state->numActions + 2;
 
-    // store expected hand, deck, discard, and supply counts:
+    // store expected hand, deck, discard, supply, played counts:
     int exp_hands[state->numPlayers];
     int exp_decks[state->numPlayers];
     int exp_discard[state->numPlayers];
+
+    int exp_play_count = 1; // only expect to play villager
 
     // copy initial hand and deck count states into temp arrays
     for(i = 0; i < state->numPlayers; i++) {
@@ -96,21 +118,30 @@ int village_test(int plyr, int drawn, struct gameState *state) {
         exp_discard[i] = state->discardCount[i];
     }
 
-    // one (at most) card drawn, one discarded
+    // one (at most) card drawn; accommodate possible reshuffling for empty deck
+    // no changes to discard pile 
     exp_hands[plyr] = state->handCount[plyr] + drawn - 1; 
-    exp_discard[plyr] = state->discardCount[plyr] + 1;
     exp_decks[plyr] = (state->deckCount[plyr] - drawn >= 0) ? 
                       state->deckCount[plyr] - drawn : 
                       state->deckCount[plyr] + state->discardCount[plyr] - drawn;    
 
+    // if deck > 0 cards, no reshuffling necessary; otherwise, discard pile empty
+    exp_discard[plyr] = state->deckCount[plyr] > 0 ? state->discardCount[plyr] : 0; 
+
     /* TESTING */
-    EPRINT("current turn: %d\n", plyr);
+
+    printf("current turn: %d\n", plyr);
     cardEffect(village, 0, 0, 0, &st_test, hand_pos, &bonus);
 
     /* if function was successful, check state against expected changes */
 
     // check that all players have expected hand, deck, discard deck sizes
-    if(output_basic_state_tests(exp_decks, exp_hands, exp_discard, &st_test) == FALSE) {
+    if(output_global_state_tests(exp_decks, exp_hands, exp_discard, &st_test) == FALSE) {
+        pass = FALSE;
+    }
+
+    // check that played card count has not changed for all cards 
+    if(output_played_card_test(exp_play_count, &st_test) == FALSE) {
         pass = FALSE;
     }
 
@@ -120,9 +151,11 @@ int village_test(int plyr, int drawn, struct gameState *state) {
     }
 
     // check that 2 actions added
+    printf("verifying that two actions have been added:\n");
     if( exp_actions != st_test.numActions ) {
         pass = FALSE;
     }
+    EPRINT("--number of total actions: %d, expected: %d\n", exp_actions, st_test.numActions);
 
     // output results
     output_test_result(pass);
