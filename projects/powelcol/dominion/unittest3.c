@@ -148,7 +148,7 @@ void init_exp_arrays(int exp_decks[], int exp_hands[], int exp_discard[], struct
  * print_ret_test: prints the result of checking the return value of the function
  */
 
-void output_ret_test( ret, exp_ret ) {
+void output_ret_test(int ret, int exp_ret) {
 
     if(ret != exp_ret) {
         printf("--ERROR: return value: %d, expected: %d\n", ret, exp_ret);
