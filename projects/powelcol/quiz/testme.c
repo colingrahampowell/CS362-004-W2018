@@ -12,6 +12,7 @@
 #include<time.h>
 
 // declare global buffer to prevent mem. leaks from inputString
+// idea from class Piazza post: "C: Returning a char pointer from a function"
 char *buf = NULL;
 
 char inputChar()

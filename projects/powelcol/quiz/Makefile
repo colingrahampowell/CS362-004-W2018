@@ -4,8 +4,6 @@
 # Makefile
 ######
 
-
-
 CFLAGS = -Wall -fpic -coverage -std=c99
 CXX = gcc
 PROG = testme
