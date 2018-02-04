@@ -1,4 +1,7 @@
 CFLAGS = -Wall -fpic -coverage -lm
+func_unit_tests = unittest1.c unittest2.c unittest3.c unittest4.c
+card_unit_tests = cardtest1.c cardtest2.c cardtest3.c cardtest4.c
+GCOV = gcov -bf
 
 rngs.o: rngs.h rngs.c
 	gcc -c rngs.c -g  $(CFLAGS)
@@ -29,9 +32,51 @@ runtests: testDrawCard
 	gcov dominion.c >> unittestresult.out
 	cat dominion.c.gcov >> unittestresult.out
 
-
 player: player.c interface.o
 	gcc -o player player.c -g  dominion.o rngs.o interface.o $(CFLAGS)
+
+test_helpers.o: 
+	gcc -c test_helpers.c -g $(CFLAGS)
+
+unittestresults.out: $(func_unit_tests) $(card_unit_tests) dominion.o rngs.o test_helpers.o
+	gcc -o ut1 unittest1.c dominion.o rngs.o test_helpers.o -g $(CFLAGS) 	
+	gcc -o ut2 unittest2.c dominion.o rngs.o test_helpers.o -g $(CFLAGS)
+	gcc -o ut3 unittest3.c dominion.o rngs.o test_helpers.o -g $(CFLAGS)
+	gcc -o ut4 unittest4.c dominion.o rngs.o test_helpers.o -g $(CFLAGS)
+	gcc -o ct1 cardtest1.c dominion.o rngs.o test_helpers.o -g $(CFLAGS)
+	gcc -o ct2 cardtest2.c dominion.o rngs.o test_helpers.o -g $(CFLAGS)
+	gcc -o ct3 cardtest3.c dominion.o rngs.o test_helpers.o -g $(CFLAGS)
+	gcc -o ct4 cardtest4.c dominion.o rngs.o test_helpers.o -g $(CFLAGS)
+
+	printf "Result for unit tests:\n" > unittestresults.out
+
+	printf "\nunittest1.c:\n\n" >> unittestresults.out
+	./ut1 >> unittestresults.out
+
+	printf "\n\nunittest2.c:\n\n" >> unittestresults.out
+	./ut2 >> unittestresults.out
+
+	printf "\n\nunittest3.c:\n\n" >> unittestresults.out
+	./ut3 >> unittestresults.out
+
+	printf "\n\nunittest4.c:\n\n" >> unittestresults.out
+	./ut4 >> unittestresults.out
+
+	printf "\n\ncardtest1.c:\n\n" >> unittestresults.out
+	./ct1 >> unittestresults.out
+
+	printf "\n\ncardtest2.c:\n\n" >> unittestresults.out
+	./ct2 >> unittestresults.out
+
+	printf "\n\ncardtest3.c:\n\n" >> unittestresults.out
+	./ct3 >> unittestresults.out
+
+	printf "\n\ncardtest4.c:\n\n" >> unittestresults.out
+	./ct4 >> unittestresults.out
+
+	printf "\n\ngcov results:\n\n" >> unittestresults.out
+	$(GCOV) dominion.c >> unittestresults.out
+	cat dominion.c.gcov >> unittestresults.out
 
 all: playdom player testDrawCard testBuyCard badTestDrawCard
 
