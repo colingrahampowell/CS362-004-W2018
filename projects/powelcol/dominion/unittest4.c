@@ -60,6 +60,7 @@ int main() {
    
         if(test == 0) {
             
+            // set expected card count, card type
             exp_count = 15;
             card = curse;
    

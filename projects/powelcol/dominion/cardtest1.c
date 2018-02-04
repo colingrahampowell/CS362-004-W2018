@@ -131,15 +131,7 @@ int smithyTest(int plyr, int drawn, struct gameState *state) {
 
     // if deck > 3 cards, no reshuffling necessary; otherwise, discard pile empty
     exp_discard[plyr] = state->deckCount[plyr] >= 3 ? state->discardCount[plyr] : 0; 
-/*
-    // set played cards to initial state
-    for(i = 0; i < MAX_DECK; i++) {
-        exp_played[i] = state->playedCards[i];
-    }
 
-    // expect smithy to be next card played
-    exp_played[state->playedCardCount] = smithy; 
-*/
     /* TESTING */
 
     printf("current turn: %d\n", plyr);

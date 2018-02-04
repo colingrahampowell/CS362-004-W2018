@@ -47,7 +47,7 @@ int main() {
     
         // make sure that 3 valid empty non-province cards end game 
         if(test == 0) {
-            printf("\nSUB_TEST: 3 valid supply cards are empty, NOT province\n");
+            printf("\nSUB_TEST: supply of 3 in-game cards are empty, NOT province\n");
             test_state.supplyCount[council_room] = 0;
             test_state.supplyCount[great_hall] = 0;    
             test_state.supplyCount[curse] = 0;
@@ -82,7 +82,7 @@ int main() {
     }
 
     /* test 2 valid supply cards empty,  */
-    printf("\n*TEST: 2 valid supply cards are empty, NOT province*\n");
+    printf("\n*TEST: supply of 2 cards are empty, NOT province*\n");
     memcpy(&test_state, &orig_state, sizeof(struct gameState));
     exp_ret = 0;
     
@@ -94,7 +94,7 @@ int main() {
     output_test_result(pass);
 
     /* test 3 supply cards NOT IN GAME are empty,  */
-    printf("\n*TEST: 3 supply cards NOT in game are empty*\n");
+    printf("\n*TEST: supply of 3 cards NOT in game are empty*\n");
     memcpy(&test_state, &orig_state, sizeof(struct gameState));
     exp_ret = 0;
 

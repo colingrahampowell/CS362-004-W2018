@@ -44,14 +44,15 @@ int main() {
 
     printf("FUNCTION: gainCard()\n\n");
 
-
     /* test 1: error checking: return -1 if card not in supply */     
     printf("*TEST: error checking: should return -1, not affect state*\n");
     printf("-------------------------------------------------\n");
     exp_ret = -1;
 
+    // cycle through each test
     for(test = 0; test < 3; test++) {
-
+    
+         // reset initial state / test flags / expected card counts
         pass = TRUE;
         memcpy(&test_state, &orig_state, sizeof(struct gameState));
         init_exp_arrays(exp_decks, exp_hands, exp_discard, &test_state);
@@ -74,8 +75,8 @@ int main() {
         pass = (ret == exp_ret) ? pass : FALSE;
         output_ret_test(ret, exp_ret);
 
-        if(output_global_state_tests(exp_decks, exp_hands, exp_discard, &test_state) 
-            == FALSE) {
+        // assert that deck, discard, hand counts match expectations 
+        if(output_global_state_tests(exp_decks, exp_hands, exp_discard, &test_state) == FALSE) {
             pass = FALSE;
         }
 
@@ -89,6 +90,7 @@ int main() {
     printf("-----------------------------------------------\n");
     exp_ret = 0;
 
+    // cycle through each "to_flag" value
     for(flag = 0; flag < 3; flag++) {
 
         // reset test state for each run
@@ -109,11 +111,13 @@ int main() {
             exp_hands[test_state.whoseTurn]++;
         }
 
+        // compare return value to expected
         ret = gainCard(adventurer, &test_state, flag, test_state.whoseTurn);
         pass = (ret == exp_ret) ? pass : FALSE;
         output_ret_test(ret, exp_ret);
 
-        if(output_global_state_tests(exp_decks, exp_hands, exp_discard, &test_state)                 == FALSE) {
+        // assert that deck, discard, hand counts match expectations 
+        if(output_global_state_tests(exp_decks, exp_hands, exp_discard, &test_state) == FALSE) {
             pass = FALSE;
         }
         // print overall results

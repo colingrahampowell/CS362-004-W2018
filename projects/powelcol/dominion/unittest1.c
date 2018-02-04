@@ -29,28 +29,25 @@ int main() {
     int k[10] = {adventurer, council_room, feast, gardens, mine, remodel,
                  smithy, village, baron, great_hall};
 
+    int pass = TRUE;    // flag for expected pass/fail state
 
-    // cards that affect the game score
-//    int scores[] = {-1, 1, 3, 6, 1, 0};    // set gardens to 0 for now (update as needed)
-    int pass = TRUE;
-
-    // RULES:
+    // test_params RULES:
     // - for each test, define a set of "piles" (card groups), and the 
     // - cards that should be in that pile.
-    // pile 0: hand, pile 1: deck, pile 2: discard
+    // pile idx 0: hand, pile idx 1: deck, pile idx 2: discard
     // to vary pile sizes, place -1 in final indices: must be at end.
 
     int test_params[NUM_TESTS][NUM_PILES][MAX_PILE_SIZE] = 
         {  
-            // test no value in hand, one of each type in deck + discard 
+            // test no value in hand, varied values in deck + discard 
             {  {gold, gold, copper, copper, silver, silver},
-               {curse, estate, duchy, province, great_hall, gardens}, 
-               {curse, estate, duchy, province, great_hall, gardens}  },
+               {curse, estate, duchy, province, estate, gardens}, 
+               {curse, estate, duchy, province, province, gardens}  },
 
             // test one of each type in hand + discard, none in deck 
-            {  {curse, estate, duchy, province, great_hall, gardens}, 
+            {  {curse, estate, duchy, province, province, gardens}, 
                {gold, gold, copper, copper, silver, silver},
-               {curse, estate, duchy, province, great_hall, gardens} },
+               {curse, estate, duchy, province, estate, gardens} },
 
             // test one of each type in deck, hand, discard 
             {  {curse, estate, duchy, province, great_hall, gardens},
@@ -88,7 +85,8 @@ int main() {
                {copper, copper, copper, copper, gold, silver}    }
         };
 
-    int expected_scores[NUM_TESTS] = {22, 22, 33, 33, 3, 0, 10, 20, 19};
+    // set expected scores for each of the tests enumerated above
+    int expected_scores[NUM_TESTS] = {27, 27, 33, 33, 3, 0, 10, 20, 19};
 
     struct gameState orig_state, test_state;
 
@@ -99,22 +97,27 @@ int main() {
 
     /* test that individual card scores accurately counted */ 
 
-    // copy game state into test
-    memcpy(&test_state, &orig_state, sizeof(struct gameState)); 
+    printf("FUNCTION: scoreFor()\n\n");
 
-    printf("*TEST scoreFor: check that score accurately calculated for all cards*\n\n");
-
+    printf("*TEST check that score accurately calculated for all cards*\n\n");
+   
+    // cycle through tests 
     for(test = 0; test < NUM_TESTS; test++) {
+
+        // copy game state into test
+        memcpy(&test_state, &orig_state, sizeof(struct gameState)); 
 
         printf("SUB-TEST: %d\n", test + 1);
         printf("------------\n");
 
+        // set hand, deck, discard counts based on test params
         for(i = 0; i < num_players; i++) {
 
             test_state.handCount[i] = get_pile_count( test_params[test][0], MAX_PILE_SIZE ); 
             test_state.deckCount[i] = get_pile_count( test_params[test][1], MAX_PILE_SIZE ); 
             test_state.discardCount[i] = get_pile_count( test_params[test][2], MAX_PILE_SIZE ); 
 
+            // set hand, deck, discard contents based on test params
             for(j = 0; j < MAX_PILE_SIZE; j++) {
 
                 test_state.hand[i][j] = test_params[test][0][j]; 
@@ -122,6 +125,7 @@ int main() {
                 test_state.discard[i][j] = test_params[test][2][j];
             }
 
+            // output card list for testing, then calc. score, report results
             output_card_list(i, &test_state);
             score = scoreFor(i, &test_state);
 
@@ -138,7 +142,8 @@ int main() {
         }
 
     }
-    
+   
+    // output overall test result 
     output_test_result(pass);
 
     return 0;

@@ -155,7 +155,7 @@ int village_test(int plyr, int drawn, struct gameState *state) {
     if( exp_actions != st_test.numActions ) {
         pass = FALSE;
     }
-    EPRINT("--number of total actions: %d, expected: %d\n", exp_actions, st_test.numActions);
+    printf("--number of total actions: %d, expected: %d\n", exp_actions, st_test.numActions);
 
     // output results
     output_test_result(pass);

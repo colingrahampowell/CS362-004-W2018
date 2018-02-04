@@ -99,49 +99,6 @@ int main() {
 
    
     /* TEST: playing adventurer w/ 0 treasure cards in deck, empty discard */   
-            
-/*
-    printf("*TEST %d\: check that all treasure types are recognized*\n", test_num);
-    test_num++;
-    draw = 2;
-
-    // try all combinations of treasure cards 
-    for(j = copper; j <= gold; j++) {
-
-        for(k = copper; k <= gold; k++) {
-            pre.deck[plyr][top_deck] = j;
-            pre.deck[plyr][top_deck - 1] = k;
-
-            printf("testing with deck top: %d, next card: %d\n", j, k);
-
-
-            memcpy(&post, &pre, sizeof(struct gameState));
-            if( advTest(plyr, draw, test_num, &pre) == FALSE ) {
-                res = FALSE;
-            }
-            assert(memcmp(&pre, &post, sizeof(struct gameState)) == 0);
-        }        
-    }
-*/
-
-/*
-    // place two coppers at top of deck
-    for(i = top_deck; i > top_deck - 2; i--) {
-        pre.deck[plyr][i] = copper;
-    }
-    
-    memcpy(&post, &pre, sizeof(struct gameState));
-    advTest(plyr, draw, test_num, &pre);
-    assert(memcmp(&pre, &post, sizeof(struct gameState)) == 0);
-*/
-    /* TEST: Playing adventurer with > 2 treasure cards in deck, varied types */
-      
-
-    /* TEST: playing adventurer with 2 treasure cards in deck */
-
-    /* TEST: playing adventurer with 1 treasure card in deck */
-
-    /* TEST: playing adventurer with 0 treasure cards in deck */
 
     return 0;
 }

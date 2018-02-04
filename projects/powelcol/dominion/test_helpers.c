@@ -28,7 +28,9 @@ void output_test_result(int pass) {
 }
 
 /*
- * output_supply_test: test supply against expected, output to stderr
+ * output_supply_test: test supply against expected, output to stdout. 
+ * expected[] is an array of expected supply cards, st is a pointer to
+ * the state to test against expectations.
  */
 
 int output_supply_test(int expected [], struct gameState *st) {
@@ -57,9 +59,14 @@ int output_supply_test(int expected [], struct gameState *st) {
 }
 
 /*
- * output_basic_state_tests: 
- * -test each player's hand count and deck count against expected, 
- * -output results to stderr
+ * output_global_state_test:
+ * -test each player's hand count, deck count, discard count
+ * -against expected values, report TRUE (1) on success, 
+ * -and FALSE (0) on failure. exp_decks[] contains expected
+ * -deck counts for each player, exp_hands[] contains expected
+ * -hand counts for each player, and exp_discard[] contains
+ * -expected discard counts for each player. st is a pointer to
+ * -the game state to test against. 
  */
 
 int output_global_state_tests(int exp_decks[], int exp_hands[], 
@@ -100,10 +107,12 @@ int output_global_state_tests(int exp_decks[], int exp_hands[],
 }
 
 /*
- * output_played_card_test() 
+ * output_played_card_test():
+ * -test played cards against expected played card count (exp_count), using st 
+ * -as the means of comparison. return TRUE (1) if exp_count matches, 
+ * -and FALSE (0) if there is a discrepancy. 
  */
 
-//int output_played_card_test(int exp_played[], int exp_count, struct gameState *st) {
 int output_played_card_test(int exp_count, struct gameState *st) {
 
 //    int i;
@@ -117,25 +126,15 @@ int output_played_card_test(int exp_count, struct gameState *st) {
     else  {
         printf("--played count matches - OK\n");
     }
-/*
-    printf("checking played cards:\n");
-    for(i = 0; i < st->playedCardCount; i++) {
-        if( st->playedCards[i] != exp_played[i] ) {
-            printf("-ERROR: position %d: played card id: %d, expected %d\n", 
-                    i, st->playedCards[i], exp_played[i]);
-            pass = FALSE;
-        }
-    }
 
-    if(pass) {
-        printf("--no unexpected changes to played cards - OK\n");
-    }
-*/
     return pass;
 }
 
 /*
- * output_card_list()
+ * output_card_list(): 
+ * -output the IDs of the cards in deck, hand, and discard for
+ * -the player ID passed as a parameter. 
+ * -st is a pointer to the game state, and plyr is the player's ID
  */
 
 void output_card_list(int plyr, struct gameState *st) {
@@ -165,7 +164,11 @@ void output_card_list(int plyr, struct gameState *st) {
 
 
 /*
- * output_supply: outputs cards / counts for the given game state
+ * output_supply: 
+ * -outputs cards / counts for the given game state. 
+ * -k is an array containing the kingdom cards in the game
+ * -num_k is the count of kingdon cards
+ * -st is a pointer to the game state
  */
 
 void output_supply(int k[], int num_k, struct gameState *st) {
@@ -195,7 +198,6 @@ void output_supply(int k[], int num_k, struct gameState *st) {
     }
     
     printf("\n");
-    
 }
 
 
