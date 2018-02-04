@@ -31,11 +31,14 @@ char *inputString()
 {
     // TODO: rewrite this function
     // length of "reset\0"
-    int len = 6; 
+    int buf_len = 6; 
     int i = 0;      // counter
     
     // idea from Piazza post: "Random Testing Quiz Program Time"
     char candidates[] = {"rest\0"};
+
+    // save number of candidate chars
+    int num_cand_chars = sizeof(candidates) / sizeof(candidates[0]);
 
     // prevent memory leaks:
     if(buf) {
@@ -44,11 +47,11 @@ char *inputString()
 
     // malloc enough space for a terminal NULL char, in case NULL not
     // at end of randomly-generated string.
-    buf = (char *)(malloc((len + 1) * sizeof(char)));
-    memset(buf, '\0', sizeof(char) * (len + 1));
+    buf = (char *)(malloc((buf_len + 1) * sizeof(char)));
+    memset(buf, '\0', sizeof(char) * (buf_len + 1));
     // fill with random char in list of candidate chars 
-    for(i = 0; i < len; i++) {
-        buf[i] = candidates [ rand() % (len) ];
+    for(i = 0; i < buf_len; i++) {
+        buf[i] = candidates [ rand() % (num_cand_chars) ];
     }
 
     return buf;
