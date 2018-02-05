@@ -56,22 +56,6 @@ char *inputString()
 
     return buf;
 
-/*
-    // malloc enough space for a terminal NULL char, in case NULL not
-    // at end of randomly-generated string.
-
-    // this will leak memory, but (hopefully) not enough to be a problem.
-    char *str = (char *)(malloc((len + 1) * sizeof(char)));
-    memset(str, '\0', sizeof(char) * (len + 1));
-
-    // fill with random char in list of candidate chars 
-    for(i = 0; i < len; i++) {
-        str[i] = candidates [ rand() % (len) ];
-    }
-    
-    return str;
-*/
-
 }
 
 void testme()
