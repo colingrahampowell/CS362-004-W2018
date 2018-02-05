@@ -21,7 +21,7 @@
 CFLAGS = -Wall -fpic -coverage -lm -O0
 func_unit_tests = unittest1.c unittest2.c unittest3.c unittest4.c
 card_unit_tests = cardtest1.c cardtest2.c cardtest3.c cardtest4.c
-GCOV = gcov -abcfu
+GCOV = gcov -bf
 
 rngs.o: rngs.h rngs.c
 	gcc -c rngs.c -g  $(CFLAGS)
