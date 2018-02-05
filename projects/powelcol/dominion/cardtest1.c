@@ -72,6 +72,7 @@ int main() {
 
     /* ---- TEST: playing smithy with deck size == 1 card AND discard pile with 5 cards ---- */
     printf("\n*TEST: playing smithy with deck == 1 card, 5 cards in discard pile*\n");
+    memcpy(&test_state, &orig_state, sizeof(struct gameState));
     draw = 3;
    
     test_state.deckCount[plyr] = 1;    // expect to draw from discard when deck emptied
