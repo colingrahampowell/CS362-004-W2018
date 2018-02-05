@@ -33,6 +33,14 @@ int main() {
     initializeGame(numPlayers, cards, seed, &orig_state);
     orig_state.hand[plyr][0] = mine;    // set mine in pos. 0
 
+    // put copper in second slot (after mine)
+    orig_state.hand[plyr][1] = copper;
+
+    // put estates in non-mine, non-copper slots
+    for(i = 2; i < orig_state.handCount[plyr]; i++) {
+        orig_state.hand[plyr][i] = estate;
+    }
+    
     assert(orig_state.deckCount[plyr] == 5);
 
     // mine contract:
@@ -46,80 +54,60 @@ int main() {
 
     printf("MINE:\nALL TESTS: player hand size = %d\n\n", orig_state.handCount[plyr]);
 
-    /* TEST: playing mine with no treasures in hand */ 
-
-    printf("*TEST: play mine w/ no treasures in hand*\n");
-    memcpy(&test_state, &orig_state, sizeof(struct gameState));
-
-    // put estates in all non-mine hand slots
-    for(i = 1; i < test_state.handCount[plyr]; i++) {
-        test_state.hand[plyr][i] = estate;
-    }
-
-    mine_test(0, 1, silver, &test_state);
-
     /* TEST: playing mine with invalid trash card */
 
     printf("\n*TEST: play mine w/ invalid trash card - not a coin*\n");
     memcpy(&test_state, &orig_state, sizeof(struct gameState));
-
-    // put copper in second slot (after mine)
-    test_state.hand[plyr][1] = copper;
-
-    // put estates in non-mine, non-copper slots
-    for(i = 2; i < test_state.handCount[plyr]; i++) {
-        test_state.hand[plyr][i] = estate;
-    }
     
     mine_test(0, 2, silver, &test_state);
 
+
     printf("\n*TEST: play mine w/ invalid trash card - not in hand*\n");
+    memcpy(&test_state, &orig_state, sizeof(struct gameState));
+
     // place a valid card in the idx one after the highest in hand
     test_state.hand[plyr][ test_state.handCount[plyr] ] = copper;
     mine_test(0, test_state.handCount[plyr], silver, &test_state );
 
-    /* TEST: playing mine with invalid gain card */ 
+
+    printf("\n*TEST: play mine w/ invalid trash card (%d)*\n", MAX_HAND - 1);
+    memcpy(&test_state, &orig_state, sizeof(struct gameState));
+
+    // place a dummy value in the final index of the player's hand[] array
+    // to skip the first error check
+    test_state.hand[plyr][MAX_HAND -1] = copper;
+    // attempting to trash MAX_HAND - 1 (not a valid card id)
+    mine_test(0, MAX_HAND - 1, copper, &test_state);
+
+
+    printf("\n*TEST: play mine w/ invalid trash card (%d)*\n", -1);
+    memcpy(&test_state, &orig_state, sizeof(struct gameState));
+
+    // attempting to trash -1 (not a valid card id)
+    mine_test(0, -1, copper, &test_state);
+
 
     printf("\n*TEST: play mine w/ non-coin gain card (%d)*\n", adventurer);
     memcpy(&test_state, &orig_state, sizeof(struct gameState));
-
-    // put copper in second slot (after mine)
-    test_state.hand[plyr][1] = copper;
-
-    // put estates in non-mine, non-copper slots
-    for(i = 2; i < test_state.handCount[plyr]; i++) {
-        test_state.hand[plyr][i] = estate;
-    }
     
     // attempt to gain adventurer into hand
     mine_test(0, 1, adventurer, &test_state);
    
     printf("\n*TEST: play mine w/ too-expensive gain card (%d)*\n", gold);
-    // no need to change test state: just try to gain different card
+    memcpy(&test_state, &orig_state, sizeof(struct gameState));
+
     mine_test(0, 1, gold, &test_state);
 
-    printf("\n*TEST: play mine w/ invalid trash card (%d)*\n", MAX_HAND + 1);
-    // no need to change test state: just try to gain different card
-    // attempting to gain treasure_map + 1 (not a valid card id)
-    mine_test(0, MAX_HAND + 1, copper, &test_state);
-
-    printf("\n*TEST: play mine w/ invalid trash card (%d)*\n", -1);
-    // no need to change test state: just try to gain different card
-    // attempting to gain treasure_map + 1 (not a valid card id)
-    mine_test(0, -1, copper, &test_state);
-    /* TEST: playing mine with correct parameters */
 
     printf("\n*TEST: play mine w/ correct cards: exchange copper for silver*\n");
     memcpy(&test_state, &orig_state, sizeof(struct gameState));
 
-    // put copper in second slot (after mine)
-    test_state.hand[plyr][1] = copper;
     mine_test(0, 1, silver, &test_state);
     
     printf("\n*TEST: play mine w/ correct cards: exchange gold for copper*\n");
     memcpy(&test_state, &orig_state, sizeof(struct gameState));
 
-    // put copper in second slot (after mine)
+    // put gold in second slot (after mine)
     test_state.hand[plyr][1] = gold;
     mine_test(0, 1, copper, &test_state);
 
@@ -227,17 +215,17 @@ int mine_test(int plyr, int card_to_trash, int card_to_gain, struct gameState *s
     /* if function was successful, check state against expected changes */
 
     // check that all players have expected hand / deck counts
-    if(output_global_state_tests(exp_decks, exp_hands, exp_discard, &st_test) == FALSE) {
+    if(test_fulldeck_counts(exp_decks, exp_hands, exp_discard, &st_test) == FALSE) {
         pass = FALSE;
     }
 
     // check that played card count has not changed for all cards 
-    if(output_played_card_test(exp_play_count, &st_test) == FALSE) {
+    if(test_playedcard_count(exp_play_count, &st_test) == FALSE) {
         pass = FALSE;
     }
 
     // check that supply count has changed only for gained card 
-    if(output_supply_test(exp_supply, &st_test) == FALSE) {
+    if(test_supply_counts(exp_supply, &st_test) == FALSE) {
         pass = FALSE;
     }
 

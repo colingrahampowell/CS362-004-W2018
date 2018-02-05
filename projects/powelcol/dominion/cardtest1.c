@@ -140,17 +140,17 @@ int smithyTest(int plyr, int drawn, struct gameState *state) {
     /* if function was successful, check state against expected changes */
 
     // check that all players have expected hand, deck, discard deck sizes
-    if(output_global_state_tests(exp_decks, exp_hands, exp_discard, &st_test) == FALSE) {
+    if(test_fulldeck_counts(exp_decks, exp_hands, exp_discard, &st_test) == FALSE) {
         pass = FALSE;
     }
     
     // check that played card count has not changed for all cards 
-    if(output_played_card_test(exp_play_count, &st_test) == FALSE) {
+    if(test_playedcard_count(exp_play_count, &st_test) == FALSE) {
         pass = FALSE;
     }
 
     // check that supply count has not changed for all cards 
-    if(output_supply_test(state->supplyCount, &st_test) == FALSE) {
+    if(test_supply_counts(state->supplyCount, &st_test) == FALSE) {
         pass = FALSE;
     }
 

@@ -86,7 +86,7 @@ int main() {
         };
 
     // set expected scores for each of the tests enumerated above
-    int expected_scores[NUM_TESTS] = {27, 27, 33, 33, 3, 0, 10, 20, 19};
+    int expected_scores[NUM_TESTS] = {27, 27, 33, 33, 3, 0, 10, 21, 20};
 
     struct gameState orig_state, test_state;
 

@@ -28,7 +28,7 @@ int main() {
     int seed = 1;
     int num_players = 2;
     int pass = TRUE;
-    int ret, exp_ret;
+    int ret, exp_ret;   // return value, expected return value
 
     // cards in the game    
     int k[10] = {adventurer, council_room, feast, gardens, mine, remodel,
@@ -76,7 +76,7 @@ int main() {
         output_ret_test(ret, exp_ret);
 
         // assert that deck, discard, hand counts match expectations 
-        if(output_global_state_tests(exp_decks, exp_hands, exp_discard, &test_state) == FALSE) {
+        if(test_fulldeck_counts(exp_decks, exp_hands, exp_discard, &test_state) == FALSE) {
             pass = FALSE;
         }
 
@@ -117,7 +117,7 @@ int main() {
         output_ret_test(ret, exp_ret);
 
         // assert that deck, discard, hand counts match expectations 
-        if(output_global_state_tests(exp_decks, exp_hands, exp_discard, &test_state) == FALSE) {
+        if(test_fulldeck_counts(exp_decks, exp_hands, exp_discard, &test_state) == FALSE) {
             pass = FALSE;
         }
         // print overall results

@@ -43,7 +43,7 @@ int main() {
         assert(orig_state.deckCount[i] >= 5);
     }
 
-    printf("ADVENTURER:\nALL TESTS: player hand size = %d\n\n", orig_state.handCount[plyr]);
+    printf("ADVENTURER:\nALL TESTS: player hand size = %d, deck size = %d\n\n", orig_state.handCount[plyr], orig_state.deckCount[plyr]);
 
     /* TEST: playing adventurer with > 2 treasure cards in deck, same type, top of deck */
     printf("*TEST: play adventurer w/ 2 treas. cards at top of deck*\n");
@@ -100,6 +100,18 @@ int main() {
    
     /* TEST: playing adventurer w/ 0 treasure cards in deck, empty discard */   
 
+    printf("\n*TEST: play adv. w/ 0 treas. card in deck, none in discard*\n");
+    memcpy(&test_state, &orig_state, sizeof(struct gameState));
+
+    draw = 5;   // player has to draw entire deck
+    disc = 5;   // will have to discard all of these
+
+    // fill deck with non-treasure cards 
+    for(i = 0; i < test_state.deckCount[plyr]; i++) {
+        test_state.deck[plyr][i] = estate; 
+    }
+
+    adv_test(plyr, draw, disc, &test_state);
     return 0;
 }
 
@@ -165,24 +177,24 @@ int adv_test(int plyr, int drawn, int disc, struct gameState *state) {
     printf("current turn: %d\n", plyr);
 
     // check that all players have expected hand / deck counts
-    if(output_global_state_tests(exp_decks, exp_hands, exp_discard, &st_test) == FALSE) {
+    if(test_fulldeck_counts(exp_decks, exp_hands, exp_discard, &st_test) == FALSE) {
         pass = FALSE;
     }
 
      // check that played cards match expectations 
-    if(output_played_card_test(exp_played_count, &st_test) == FALSE) {
+    if(test_playedcard_count(exp_played_count, &st_test) == FALSE) {
         pass = FALSE;
     }
 
     // check that supply count has not changed for any card in supply 
-    if(output_supply_test(state->supplyCount, &st_test) == FALSE) {
+    if(test_supply_counts(state->supplyCount, &st_test) == FALSE) {
         pass = FALSE;
     }
 
     // adventurer-specific test: ensure that only treasures were 
     // drawn from the draw pile:
     top_hand = st_test.handCount[plyr] - 1;
-    printf("checking that only treasures were drawn:\n");
+    printf("checking that only treasures were drawn (if any):\n");
    
     // if any cards were drawn (delta > 0): 
     if(drawn - disc > 0) {
@@ -200,7 +212,7 @@ int adv_test(int plyr, int drawn, int disc, struct gameState *state) {
         pass = FALSE;
     }
     else {
-        printf("--only treasures were drawn - OK\n");
+        printf("--no non-treasures were drawn - OK\n");
     }
 
     output_test_result(pass);

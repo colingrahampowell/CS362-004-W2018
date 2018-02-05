@@ -8,7 +8,6 @@
 
 #include "test_helpers.h"
 
-
 /*
  * output_test_result: outputs the result of a specific 
  * test; pass is an int representing the overall state
@@ -28,12 +27,12 @@ void output_test_result(int pass) {
 }
 
 /*
- * output_supply_test: test supply against expected, output to stdout. 
+ * test_supply_count: test supply against expected, output to stdout. 
  * expected[] is an array of expected supply cards, st is a pointer to
  * the state to test against expectations.
  */
 
-int output_supply_test(int expected [], struct gameState *st) {
+int test_supply_counts(int expected [], struct gameState *st) {
 
     int i = 0;
     int good_supply = TRUE;
@@ -59,7 +58,7 @@ int output_supply_test(int expected [], struct gameState *st) {
 }
 
 /*
- * output_global_state_test:
+ * test_fulldeck_counts
  * -test each player's hand count, deck count, discard count
  * -against expected values, report TRUE (1) on success, 
  * -and FALSE (0) on failure. exp_decks[] contains expected
@@ -69,8 +68,8 @@ int output_supply_test(int expected [], struct gameState *st) {
  * -the game state to test against. 
  */
 
-int output_global_state_tests(int exp_decks[], int exp_hands[], 
-                              int exp_discard[], struct gameState *st) {
+int test_fulldeck_counts(int exp_decks[], int exp_hands[], 
+                         int exp_discard[], struct gameState *st) {
 
     int i = 0;
     int pass = TRUE;
@@ -107,13 +106,13 @@ int output_global_state_tests(int exp_decks[], int exp_hands[],
 }
 
 /*
- * output_played_card_test():
+ * test_playedcard_count():
  * -test played cards against expected played card count (exp_count), using st 
  * -as the means of comparison. return TRUE (1) if exp_count matches, 
  * -and FALSE (0) if there is a discrepancy. 
  */
 
-int output_played_card_test(int exp_count, struct gameState *st) {
+int test_playedcard_count(int exp_count, struct gameState *st) {
 
 //    int i;
     int pass = TRUE;
