@@ -1,4 +1,17 @@
+#########
+# Colin Powell
+# CS362: Assignment 3
+# Makefile
+#########
+
+# NOTE: gcov is cumulative, so method for creating output files starts
+# by first removing dominion.gcda file to clear any previous code coverage
+# results. This prevents other unit / random tests from "polluting" the current 
+# random test and altering code coverage results.
+
+
 CFLAGS = -Wall -fpic -coverage -lm
+GCOV = gcov -bf
 
 rngs.o: rngs.h rngs.c
 	gcc -c rngs.c -g  $(CFLAGS)
@@ -29,6 +42,18 @@ runtests: testDrawCard
 	gcov dominion.c >> unittestresult.out
 	cat dominion.c.gcov >> unittestresult.out
 
+random_test_helpers.o: random_test_helpers.c random_test_helpers.h
+	gcc -c random_test_helpers.c -g $(CFLAGS)
+
+randomtestadventurer.out: random_test_helpers.o rngs.o dominion.o randomtestadventurer.c 
+	gcc -o rtadv randomtestadventurer.c dominion.o rngs.o random_test_helpers.o -g ${CFLAGS}
+	rm -f dominion.c.gcda
+	printf "Result for random tests:\n"  > randomtestadventurer.out
+	./rtadv >> randomtestadventurer.out
+	printf "gcov function coverage results:\n\n"  >> randomtestadventurer.out
+	$(GCOV)	dominion.c | grep "adventurerEffect" -A 4 >> randomtestadventurer.out
+	printf "\n\nOverall test coverage results:\n\n" >> randomtestadventurer.out
+	cat dominion.c.gcov >> randomtestadventurer.out
 
 player: player.c interface.o
 	gcc -o player player.c -g  dominion.o rngs.o interface.o $(CFLAGS)
