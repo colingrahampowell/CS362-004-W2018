@@ -96,7 +96,6 @@ int check_adventurer(test_params *tparams, struct gameState *st) {
 
     int bonus = 0;  // needed for cardeffect
     int draw_count = 0;
-    int draw_pos = 0;
 
     int temphand[MAX_HAND];
     int z = 0;
@@ -117,11 +116,10 @@ int check_adventurer(test_params *tparams, struct gameState *st) {
     cardEffect(tparams->test_card, 0, 0, 0, st, pos, &bonus);
 
     // get expected draw count, deck positions of cards drawn
-
     i = pre.deckCount[plyr] - 1;
     while( i >= 0 && draw_count < 2) {
+
         if(is_treasure(pre.deck[plyr][i])) {
-            draw_pos = i;
 
             pre.hand[plyr][pre.handCount[plyr]] = pre.deck[plyr][i];
             // place card into hand
@@ -134,6 +132,7 @@ int check_adventurer(test_params *tparams, struct gameState *st) {
         }
         pre.deckCount[plyr]--;
         i--;
+
     }
 
     // if we couldn't find both needed treasure cards in deck, check discard
@@ -151,7 +150,6 @@ int check_adventurer(test_params *tparams, struct gameState *st) {
         i = pre.deckCount[plyr] - 1;
         while( i >= 0 && draw_count < 2) {
             if(is_treasure(pre.deck[plyr][i])) {
-                draw_pos = i;
 
                 pre.hand[plyr][pre.handCount[plyr]] = pre.deck[plyr][i];
                 // place card into hand
@@ -165,6 +163,7 @@ int check_adventurer(test_params *tparams, struct gameState *st) {
             pre.deckCount[plyr]--;
             i--;
         }
+
     }
 
     // remove played adventurer from hand
@@ -195,9 +194,7 @@ int check_adventurer(test_params *tparams, struct gameState *st) {
         print_diffs(tparams, &pre, st);
         printf("\n\n");
     }
-
     return 0;
-
 }
 
 /*

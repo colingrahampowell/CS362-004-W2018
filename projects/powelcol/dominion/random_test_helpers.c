@@ -22,7 +22,6 @@ void print_diffs(test_params *tparams, struct gameState *expect, struct gameStat
 
     int i;
     int np;
-    int diff_cards = FALSE;
         
     printf("-----TEST FAILED: PRINTING DIFFERENCES DETECTED-----\n");
 
@@ -51,19 +50,16 @@ void print_diffs(test_params *tparams, struct gameState *expect, struct gameStat
     for(i = 0; i < np; i++) {
 
         if( expect->deckCount[i] != observe->deckCount[i] ) {
-            diff_cards = TRUE;
             printf("--player %d deckCount: observed: %d, expected: %d\n", 
                     i, observe->deckCount[i], expect->deckCount[i]);    
         }
         
         if( expect->handCount[i] != observe->handCount[i] ) {
-            diff_cards = TRUE;
             printf("--player %d handCount: observed: %d, expected: %d\n", 
                     i, observe->handCount[i], expect->handCount[i]);    
         }
 
         if( expect->discardCount[i] != observe->discardCount[i] ) {
-            diff_cards = TRUE;
             printf("--player %d discardCount: observed: %d, expected: %d\n", 
                     i, observe->discardCount[i], expect->discardCount[i]);    
         }
