@@ -36,8 +36,8 @@ int main(){
     tparams.test_card = smithy;
     tparams.total_cards = (treasure_map -  curse + 1);
     tparams.king_card_start = gold + 1;
-    tparams.max_deck_sz = 500;
-    tparams.max_hand_sz = 500;
+    tparams.max_deck_sz = MAX_DECK;
+    tparams.max_hand_sz = MAX_HAND;
     tparams.max_supply = 40;
 
     struct gameState st;
@@ -56,6 +56,11 @@ int main(){
         // create a deck of kingdom cards including smithy
         pick_king_cards(&tparams);
         setup_random_game(&tparams, &st); 
+
+        printf("hand: %d, deck: %d, discard: %d, sum: %d\n", st.handCount[st.whoseTurn], st.deckCount[st.whoseTurn], st.discardCount[st.whoseTurn], 
+                                                             st.handCount[st.whoseTurn] + st.deckCount[st.whoseTurn] + st.discardCount[st.whoseTurn]);
+
+
         check_smithy(&tparams, &st);
     }
 

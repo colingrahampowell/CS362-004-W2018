@@ -14,16 +14,10 @@
 #include <string.h>
 #include <time.h>
 
-#define TOTAL_CARDS 27
-#define NUM_KING_CARDS 10
-#define NUM_TREASURE_CARDS 3
-#define TREASURE_SUPPLY 40     // treas. cards per supply pile
-
-#define TST_DECK_SIZE 10
-#define TST_HAND_SIZE 10 
-
 #define TRUE 1
 #define FALSE 0
+
+int NUM_FAILURES = 0;   // track test failures globally
 
 int count_total_treasures(struct gameState *st);
 int is_treasure( int card );
@@ -80,6 +74,8 @@ int main() {
 
         check_adventurer(&tparams, &st); 
     }
+    
+    printf("\nTESTING COMPLETE. TOTAL ITERATIONS: %d, TOTAL FAILURES: %d\n", n, NUM_FAILURES);
 
     return 0;
 }
@@ -182,6 +178,8 @@ int check_adventurer(test_params *tparams, struct gameState *st) {
 
     if( memcmp(&pre, st, sizeof(struct gameState)) != 0) {
         // if not, print differences
+
+        NUM_FAILURES++;
 
         #ifdef VERBOSE
             printf("EXPECTED ADVENTURER TEST:\n");

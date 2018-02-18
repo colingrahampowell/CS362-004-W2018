@@ -181,7 +181,7 @@ int setup_random_game(test_params *tparams, struct gameState *st) {
     dk = ds = hd = 0;
 
     // random number of players, select player at random 
-    st->numPlayers = floor(Random() * 2) + 2;
+    st->numPlayers = floor(Random() * 3) + 2;   // 2 - 4 players
     st->whoseTurn = floor(Random() * st->numPlayers);
     int plyr = st->whoseTurn; 
 

@@ -44,7 +44,7 @@ randomtestadventurer.out: random_test_helpers.o rngs.o dominion.o randomtestadve
 	gcc -o rtadv randomtestadventurer.c dominion.o rngs.o random_test_helpers.o -g ${CFLAGS}
 	printf "Result for random tests:\n"  > randomtestadventurer.out
 	./rtadv >> randomtestadventurer.out
-	printf "gcov function coverage results:\n\n"  >> randomtestadventurer.out
+	printf "\ngcov function coverage results:\n\n"  >> randomtestadventurer.out
 	$(GCOV)	dominion.c | grep "adventurerEffect" -A 4 >> randomtestadventurer.out
 	printf "\nOverall test coverage results:\n\n" >> randomtestadventurer.out
 	cat dominion.c.gcov >> randomtestadventurer.out
