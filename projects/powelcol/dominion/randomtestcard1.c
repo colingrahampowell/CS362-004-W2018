@@ -56,11 +56,6 @@ int main(){
         // create a deck of kingdom cards including smithy
         pick_king_cards(&tparams);
         setup_random_game(&tparams, &st); 
-
-        printf("hand: %d, deck: %d, discard: %d, sum: %d\n", st.handCount[st.whoseTurn], st.deckCount[st.whoseTurn], st.discardCount[st.whoseTurn], 
-                                                             st.handCount[st.whoseTurn] + st.deckCount[st.whoseTurn] + st.discardCount[st.whoseTurn]);
-
-
         check_smithy(&tparams, &st);
     }
 
