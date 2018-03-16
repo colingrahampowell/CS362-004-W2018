@@ -101,22 +101,75 @@ public class UrlValidatorTest {
    }
    
    @Test
-   public void testYourFirstPartition() {
-	 //You can use this function to implement your First Partition testing	   
+   public void testYourFirstPartition() {	 
+	 // Set a few valid URLs that should be valid, then test those
 
+  	System.out.println("********First Partition: Valid URLs********");
+		
+	System.out.println("Testing valid URLs...");
+	String[] schemes = { "http", "https", "ftp" };
+	UrlValidator urlVal = new UrlValidator(schemes);
+	
+	collector.checkThat("expect basic http-based URL to be valid", 
+	  	urlVal.isValid("http://www.google.com"), CoreMatchers.equalTo(true));
+	collector.checkThat("expect basic http-based URL to be valid", 
+		urlVal.isValid("https://www.google.com"), CoreMatchers.equalTo(true));
+	collector.checkThat("expect basic http-based URL to be valid", 
+		urlVal.isValid("ftp://foo.bar.com/"), CoreMatchers.equalTo(true));
+
+	
+	urlVal = new UrlValidator(null, null, UrlValidator.ALLOW_ALL_SCHEMES);
+	collector.checkThat("Authority should be correct", 
+		urlVal.isValid("http://www.google.com:65530"), CoreMatchers.equalTo(true));
+	collector.checkThat("Path should be valid", 
+		urlVal.isValid("http://www.google.com/mail"), CoreMatchers.equalTo(true));
+	collector.checkThat("Query should be valid", 
+			urlVal.isValid("http://www.google.com?foo=bar&baz=bam"), CoreMatchers.equalTo(true));
+	collector.checkThat("URL fragment should be valid", 
+		urlVal.isValid("http://www.google.com/mail#two"), CoreMatchers.equalTo(true));
+ 	
+  	System.out.println("First Partition Complete\n");
+		
    }
    
    @Test
    public void testYourSecondPartition() {
-		 //You can use this function to implement your Second Partition testing	   
+	  	System.out.println("********Second Partition: Invalid URLs********");
+		
+		System.out.println("Testing invalid URLs...");
+		String[] schemes = { "http", "https", "ftp" };
+		UrlValidator urlVal = new UrlValidator(schemes);
 
+	  	// Test URLs with invalid scheme
+	  	collector.checkThat("expect basic http-based URL to be valid", 
+			  	urlVal.isValid("httcs://www.google.com"), CoreMatchers.equalTo(false));	   
+
+	  	urlVal = new UrlValidator(null, null, UrlValidator.ALLOW_ALL_SCHEMES);
+	  	
+	  	// Test URLs with invalid authority
+	  	collector.checkThat("Testing with invalid authority", 
+			  	urlVal.isValid("https://www.googlrcom:66666666"), CoreMatchers.equalTo(false));	   
+	   
+	  	// Test URLs with invalid path
+		collector.checkThat("Testing with invalid path", 
+			  	urlVal.isValid("https://www.google.com/ooop"), CoreMatchers.equalTo(false));	   
+	   
+	  	// Test URLs with invalid query
+		collector.checkThat("Testing with invalid query", 
+			  	urlVal.isValid("http://www.google.com?foo$bar*baz-bam"), CoreMatchers.equalTo(false));	   
+	   
+	  	// Test URLs with invalid fragment
+		collector.checkThat("Testing with invalid query", 
+			  	urlVal.isValid("https://www.google.com#ll"), CoreMatchers.equalTo(false));
+	  	
+	  	System.out.println("Second Partition Complete\n");
    }
    //You may need to create more test cases for your Partitions
    
-   @Test
-   public void testIsValid() {
+   //@Test
+   /*public void testIsValid() {
 	   //You can use this function for programming based testing
 
-   }
+   }*/
 
 }
