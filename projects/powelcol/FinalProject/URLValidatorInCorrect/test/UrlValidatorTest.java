@@ -555,7 +555,7 @@ public class UrlValidatorTest {
 		   	collector.addError(err);
 		}
 		try {
-			collector.checkThat("Testing with invalid query delimiter", urlVal.isValid("http://www.google.com!action=yes"), CoreMatchers.equalTo(false));	   
+			collector.checkThat("Testing with invalid query delimiter", urlVal.isValid("http://www.google.com/page!action=yes"), CoreMatchers.equalTo(false));	   
 		} catch (Throwable err) {
 		   	collector.addError(err);
 		}
@@ -586,6 +586,7 @@ public class UrlValidatorTest {
 		   //You can use this function for programming based testing
 		   // https://tools.ietf.org/html/rfc3986#section-3
 		   int failedTests = 0;
+		   int errorTests = 0;
 		   int trials = 500;
 		   boolean expectedResult = false; 
 		   boolean actualResult = false;
@@ -629,12 +630,14 @@ public class UrlValidatorTest {
 				   // log results to console
 				   if (expectedResult != actualResult) {
 					   failedTests++;
-					   System.out.println("--FAILURE: " + urlGenerated + "-> expected: "
+					   System.out.println("--FAILURE: " + urlGenerated + " -> expected: "
 							   + expectedResult + " actual: " + actualResult);
 				   }
 				   
 			   } catch (Throwable err) {
 				   collector.addError(err);
+				   errorTests++;
+				   System.out.println("--ERROR in P.U.T.: " + urlGenerated + " -> " + err);
 			   }
 
 		   }
@@ -642,6 +645,7 @@ public class UrlValidatorTest {
 		   System.out.println("_________________________________________________________");
 		   System.out.println("             RANDOMIZED UNIT TEST RESULTS ");
 		   System.out.println(failedTests + " failures out of " + trials);
+		   System.out.println(errorTests + " errors out of " + trials);
 		   System.out.println("See JUnit output for more details.\n"); 
 		   System.out.println("_________________________________________________________"); 
 	   }
