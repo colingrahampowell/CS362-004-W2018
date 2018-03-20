@@ -520,7 +520,7 @@ public class UrlValidatorTest {
 	   		collector.addError(err);
 	   	}
 		try {
-			collector.checkThat("Testing with invalid authority", urlVal.isValid("http://"), CoreMatchers.equalTo(false));	   
+			collector.checkThat("Testing with invalid authority", urlVal.isValid(""), CoreMatchers.equalTo(false));	   
 		} catch (Throwable err) {
 	   		collector.addError(err);
 	   	}
@@ -549,17 +549,17 @@ public class UrlValidatorTest {
 	   
 	  	// Test URLs with invalid query
 		try {
-			collector.checkThat("Testing with invalid query", urlVal.isValid("http://www.google.com,foo=bar&baz=bam"), CoreMatchers.equalTo(false));	   
+			collector.checkThat("Testing with invalid query", urlVal.isValid("http://www.google.com/page,foo=bar&baz=bam"), CoreMatchers.equalTo(false));	   
 		} catch (Throwable err) {
 	   		collector.addError(err);
 	   	}
 		try {
-			collector.checkThat("Testing with invalid query", urlVal.isValid("http://www.google.com$foo=bar&baz=bam"), CoreMatchers.equalTo(false));	   
+			collector.checkThat("Testing with invalid query", urlVal.isValid("http://www.google.com/page$foo=bar&baz=bam"), CoreMatchers.equalTo(false));	   
 		} catch (Throwable err) {
 	   		collector.addError(err);
 	   	}
 		try {
-			collector.checkThat("Testing with invalid query", urlVal.isValid("http://www.google.com!action=yes"), CoreMatchers.equalTo(false));	   
+			collector.checkThat("Testing with invalid query", urlVal.isValid("http://www.google.com/page!action=yes"), CoreMatchers.equalTo(false));	   
 		} catch (Throwable err) {
 	   		collector.addError(err);
 	   	}
