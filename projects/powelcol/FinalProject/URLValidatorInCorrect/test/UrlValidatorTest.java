@@ -16,22 +16,22 @@ public class UrlValidatorTest {
 	// use ErrorCollector to collect assertion failures instead of immediately terminating program
 	// add as a JUnit4 "Rule"
 	
-	@Rule
+    @Rule
     public ErrorCollector collector = new ErrorCollector();
 
-	@Test
+    @Test
     public void testResultPair() {
 		
-   	    System.out.println("MANUAL TESTING: ResultPair Tests");
+        System.out.println("MANUAL TESTING: ResultPair Tests");
 
-	    // ResultPair is broken...see ResultPair.java in src dir.
-	    ResultPair rp_true = new ResultPair("http://www.google.com", true);
-	    ResultPair rp_false = new ResultPair("foo", false);
+        // ResultPair is broken...see ResultPair.java in src dir.
+        ResultPair rp_true = new ResultPair("http://www.google.com", true);
+        ResultPair rp_false = new ResultPair("foo", false);
 				
-	    System.out.println("Testing ResultPair objects...");
-	    collector.checkThat("ResultPair reporting incorrect valid property", rp_true.valid, CoreMatchers.equalTo(true));
-	    collector.checkThat("ResultPair reporting incorrect valid property", rp_false.valid, CoreMatchers.equalTo(false));
-	    System.out.println("ResultPair testing complete. See JUnit output for details.\n");
+        System.out.println("Testing ResultPair objects...");
+        collector.checkThat("ResultPair reporting incorrect valid property", rp_true.valid, CoreMatchers.equalTo(true));
+        collector.checkThat("ResultPair reporting incorrect valid property", rp_false.valid, CoreMatchers.equalTo(false));
+        System.out.println("ResultPair testing complete. See JUnit output for details.\n");
 		
     }
 	
