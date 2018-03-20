@@ -17,18 +17,18 @@ public class UrlValidatorTest {
 	public ErrorCollector collector = new ErrorCollector();
 
 	@Test
-	public void testTestTuples() {
+	public void testResultPair() {
 		
-   		System.out.println("MANUAL TESTING: TestTuple Tests");
+   		System.out.println("MANUAL TESTING: ResultPair Tests");
 
-		// TestTuple is broken...see TestTuple.java in src dir.
-		TestTuple rp_true = new TestTuple("http://www.google.com", true);
-		TestTuple rp_false = new TestTuple("foo", false);
+		// ResultPair is broken...see ResultPair.java in src dir.
+		ResultPair rp_true = new ResultPair("http://www.google.com", true);
+		ResultPair rp_false = new ResultPair("foo", false);
 				
-		System.out.println("Testing TestTuple objects...");
-		collector.checkThat("TestTuple reporting incorrect valid property", rp_true.getValid(), CoreMatchers.equalTo(true));
-		collector.checkThat("TestTuple reporting incorrect valid property", rp_false.getValid(), CoreMatchers.equalTo(false));
-		System.out.println("TestTuple testing complete. See JUnit output for details.\n");
+		System.out.println("Testing ResultPair objects...");
+		collector.checkThat("ResultPair reporting incorrect valid property", rp_true.valid, CoreMatchers.equalTo(true));
+		collector.checkThat("ResultPair reporting incorrect valid property", rp_false.valid, CoreMatchers.equalTo(false));
+		System.out.println("ResultPair testing complete. See JUnit output for details.\n");
 	}
 	
     @Test
