@@ -555,7 +555,7 @@ public class UrlValidatorTest {
 	   		collector.addError(err);
 	   	}
 		try {
-			collector.checkThat("Testing with invalid query", urlVal.isValid("http://www.google.com/page?action==yes"), CoreMatchers.equalTo(false));	   
+			collector.checkThat("Testing with invalid query", urlVal.isValid("http://www.google.com/page!action=yes"), CoreMatchers.equalTo(false));	   
 		} catch (Throwable err) {
 	   		collector.addError(err);
 	   	}
