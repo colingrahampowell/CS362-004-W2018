@@ -20,7 +20,7 @@ public class UrlValidatorTest {
     public ErrorCollector collector = new ErrorCollector();
 
     @Test
-    public void testResultPair() {
+    public void testResultPairs() {
 		
         System.out.println("MANUAL TESTING: ResultPair Tests");
 
