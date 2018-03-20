@@ -623,7 +623,7 @@ public class UrlValidatorTest {
 
 			   // test if url validator returns the same value
 			   // as the test tuples (control value)
-			   collector.checkThat(validator.isValid(urlGenerated), CoreMatchers.equalTo(expectedResult));
+			   collector.checkThat(actualResult, CoreMatchers.equalTo(expectedResult));
 			   // log results to console
 			   if (expectedResult != actualResult) {
 				   failedTests++;
