@@ -12,9 +12,7 @@ import org.hamcrest.CoreMatchers;
 import java.util.Random; 
 
 public class UrlValidatorTest {
-	
-	boolean PRINT_FAILURES = true;
-	
+		
 	@Rule
 	public ErrorCollector collector = new ErrorCollector();
 
