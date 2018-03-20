@@ -544,44 +544,45 @@ public class UrlValidatorTest {
 	   	}
 
 		  	// Test URLs with invalid query
-			try {
-				collector.checkThat("Testing with invalid query delimiter", urlVal.isValid("http://www.google.com,foo=bar&baz=bam"), CoreMatchers.equalTo(false));	   
-			} catch (Throwable err) {
-		   		collector.addError(err);
-		   	}
-			try {
-				collector.checkThat("Testing with invalid query delimiter", urlVal.isValid("http://www.google.com$foo=bar&baz=bam"), CoreMatchers.equalTo(false));	   
-			} catch (Throwable err) {
-		   		collector.addError(err);
-		   	}
-			try {
-				collector.checkThat("Testing with invalid query delimiter", urlVal.isValid("http://www.google.com!action=yes"), CoreMatchers.equalTo(false));	   
-			} catch (Throwable err) {
-		   		collector.addError(err);
-		   	}
+		try {
+			collector.checkThat("Testing with invalid query delimiter", urlVal.isValid("http://www.google.com,foo=bar&baz=bam"), CoreMatchers.equalTo(false));	   
+		} catch (Throwable err) {
+		   	collector.addError(err);
+		}
+		try {
+			collector.checkThat("Testing with invalid query delimiter", urlVal.isValid("http://www.google.com$foo=bar&baz=bam"), CoreMatchers.equalTo(false));	   
+		} catch (Throwable err) {
+		   	collector.addError(err);
+		}
+		try {
+			collector.checkThat("Testing with invalid query delimiter", urlVal.isValid("http://www.google.com!action=yes"), CoreMatchers.equalTo(false));	   
+		} catch (Throwable err) {
+		   	collector.addError(err);
+		}
 		   
-		  	// Test URLs with invalid fragment
-			try {
-				collector.checkThat("Testing with invalid fragment", urlVal.isValid("https://www.google.com%ll"), CoreMatchers.equalTo(false));
-			} catch (Throwable err) {
-		   		collector.addError(err);
-		   	}
-			try {
-				collector.checkThat("Testing with invalid fragment", urlVal.isValid("https://www.google.comtest$###"), CoreMatchers.equalTo(false));
-			} catch (Throwable err) {
-		   		collector.addError(err);
-		   	}
-			try {
-				collector.checkThat("Testing with invalid fragment", urlVal.isValid("https://www.google.com*("), CoreMatchers.equalTo(false));
-			} catch (Throwable err) {
-		   		collector.addError(err);
-		   	}
+		// Test URLs with invalid fragment
+		try {
+			collector.checkThat("Testing with invalid fragment", urlVal.isValid("https://www.google.com%ll"), CoreMatchers.equalTo(false));
+		} catch (Throwable err) {
+		   	collector.addError(err);
+		}
+		try {
+			collector.checkThat("Testing with invalid fragment", urlVal.isValid("https://www.google.comtest$###"), CoreMatchers.equalTo(false));
+		} catch (Throwable err) {
+		   	collector.addError(err);
+		}
+		try {
+			collector.checkThat("Testing with invalid fragment", urlVal.isValid("https://www.google.com*("), CoreMatchers.equalTo(false));
+		} catch (Throwable err) {
+		   	collector.addError(err);
+		}
 		  	
-		  	System.out.println("Second Partition Complete. See JUnit output for details.\n"); 
+		System.out.println("Second Partition Complete. See JUnit output for details.\n"); 
 	   }
    
 	   @Test
 	   public void testIsValid() {
+		   
 		   //You can use this function for programming based testing
 		   // https://tools.ietf.org/html/rfc3986#section-3
 		   int failedTests = 0;
@@ -590,10 +591,12 @@ public class UrlValidatorTest {
 		   boolean actualResult = false;
 		   String urlGenerated;
 		   TestTuple[] testUrl = new TestTuple[5];
-		   Random rand = new Random(); 
+		   Random rand = new Random(1); 
+		   
 		   System.out.println("_________________________________________________________");
 		   System.out.println("             BEGINNING RANDOMIZED UNIT TEST              ");
-		   // combine from the testtuples and test combinations
+		   
+		   // combine from the testtuples and test combinations 
 		   for(int i = 0; i < trials; i++) {
 			   // get random scheme
 			   testUrl[0] = testScheme[rand.nextInt(testScheme.length)];
@@ -608,28 +611,32 @@ public class UrlValidatorTest {
 			   
 			   // test tuple values of all - if all true, then 
 			   // should pass else fail
-			   expectedResult = testUrl[0].getValid() && testUrl[2].getValid() &&
+			   expectedResult = testUrl[0].getValid() && testUrl[1].getValid() && testUrl[2].getValid() &&
 					   testUrl[3].getValid() && testUrl[4].getValid();
 			   
 			   // run url validator on the generated url
-			   urlGenerated = testUrl[0].getItem() + testUrl[2].getItem() +
+			   urlGenerated = testUrl[0].getItem() + testUrl[1].getItem() + testUrl[2].getItem() +
 					   testUrl[3].getItem() + testUrl[4].getItem();
 			   UrlValidator validator = new UrlValidator(UrlValidator.ALLOW_ALL_SCHEMES);
+			  
 			   try {
+				  
 				   actualResult = validator.isValid(urlGenerated);
+				   
+				   // test if url validator returns the same value
+				   // as the test tuples (control value)
+				   collector.checkThat(actualResult, CoreMatchers.equalTo(expectedResult));
+				   // log results to console
+				   if (expectedResult != actualResult) {
+					   failedTests++;
+					   System.out.println("--FAILURE: " + urlGenerated + "-> expected: "
+							   + expectedResult + " actual: " + actualResult);
+				   }
+				   
 			   } catch (Throwable err) {
 				   collector.addError(err);
 			   }
 
-			   // test if url validator returns the same value
-			   // as the test tuples (control value)
-			   collector.checkThat(actualResult, CoreMatchers.equalTo(expectedResult));
-			   // log results to console
-			   if (expectedResult != actualResult) {
-				   failedTests++;
-				   System.out.println("--FAILURE: " + urlGenerated + "-> expected: "
-						   + expectedResult + " actual: " + actualResult);
-			   }
 		   }
 		   // log final results to console
 		   System.out.println("_________________________________________________________");
@@ -650,7 +657,8 @@ public class UrlValidatorTest {
 	   // should accept uppercase letters as equivalent to lowercase in scheme
 	   // names (e.g., allow "HTTP" as well as "http") for the sake of
 	   // robustness but should only produce lowercase scheme names for
-	   // consistency.	   
+	   // consistency.	  
+	   
 	   TestTuple[] testScheme = {
                new TestTuple("http://", true),
                new TestTuple("ftp://", true),
