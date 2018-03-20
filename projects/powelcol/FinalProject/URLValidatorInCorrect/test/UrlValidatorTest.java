@@ -212,10 +212,6 @@ public class UrlValidatorTest {
 		urlVal.isValid("https://www.google.com"), CoreMatchers.equalTo(true));
 	collector.checkThat("expect basic http-based URL to be valid", 
 		urlVal.isValid("ftp://foo.bar.com/"), CoreMatchers.equalTo(true));
-	collector.checkThat("expect basic http-based URL to be valid", 
-			urlVal.isValid("h3t://foo.bar.com/"), CoreMatchers.equalTo(true));
-	collector.checkThat("expect basic http-based URL to be valid", 
-			urlVal.isValid("foo.bar.com/"), CoreMatchers.equalTo(true));
 
 	
 	urlVal = new UrlValidator(null, null, UrlValidator.ALLOW_ALL_SCHEMES);
